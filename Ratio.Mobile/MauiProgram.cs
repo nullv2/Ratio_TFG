@@ -7,6 +7,9 @@ using Ratio.Application.Mappers;
 using Ratio.Application.Services;
 using Ratio.Application.Services.Abstraction;
 using Ratio.Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
+using System.Text.Json;
+using Ratio.Mobile.Models;
 
 namespace Ratio.Mobile
 {
@@ -52,6 +55,7 @@ namespace Ratio.Mobile
 
             return builder.Build();
         }
+        
 
     }
 }

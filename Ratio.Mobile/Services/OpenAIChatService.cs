@@ -1,76 +1,106 @@
-﻿using Ratio.Mobile.Models.Chat;
-using System.Net.Http.Json;
-
-using OpenAI;
-using OpenAI.Assistants;
-
+﻿using Ratio.Mobile.Enums;
+using Ratio.Mobile.Models;
+using Ratio.Mobile.Models.Chat;
+using Ratio.Mobile.Models.Chat.OpenAI;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace Ratio.Mobile.Services
 {
-    public class OpenAIChatService : IChatService
+    public class OpenAIChatService
     {
-        private readonly HttpClient _httpClient;
-        private readonly string _apiKey;
-        private readonly string _model;
+        private readonly HttpClient _client;
+        private readonly OpenAIConfig _openAIConfig;
+        private string _threadId;
 
-        public OpenAIChatService(string apiKey, string model = "gpt-3.5-turbo")
+        public OpenAIChatService(OpenAIConfig openAIConfig)
         {
-            _httpClient = new HttpClient();
-            _apiKey = apiKey;
-            _model = model;
+            _openAIConfig = openAIConfig;
+            _client = new HttpClient();
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAIConfig.ApiKey);
+            _client.DefaultRequestHeaders.Add("OpenAI-Beta", "assistants=v2");
         }
 
+        /// <summary>
+        /// Initializes a new chat thread and stores its ID for future interactions.
+        /// </summary>
+        public async Task InitializeThreadAsync()
+        {
+            var content = new StringContent("{}", Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync("https://api.openai.com/v1/threads", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var threadResponse = JsonSerializer.Deserialize<ThreadResponse>(responseContent);
+            _threadId = threadResponse.id;
+        }
+
+        /// <summary>
+        /// Sends a message to the existing thread and returns the assistant's reply.
+        /// </summary>
         public async Task<string> SendMessageAsync(ChatHistory history)
         {
-            // Inject system prompt first
-            var messages = new List<object>
-    {
-        new
+            //Get last user message
+            var userMessage = history.Messages.LastOrDefault(m => m.Role == ChatRole.User)?.Content;
+
+            if (string.IsNullOrEmpty(_threadId))
+                await InitializeThreadAsync();
+
+            await AddMessageToThreadAsync(_threadId, userMessage);
+            await RunThreadAsync(_threadId);
+            await Task.Delay(5000); // Replace with proper polling if needed
+
+            // Fetch messages and extract assistant's reply
+            var assistantReply = await GetLatestAssistantMessageAsync(_threadId);
+
+            return assistantReply;
+        }
+        private async Task<string> GetLatestAssistantMessageAsync(string threadId)
         {
-            role = "system",
-            content = "You are Ratio Tactical, an expert tactical advisor for Warhammer 40,000: Kill Team, providing insights based on the latest 2025 rules and balance dataslates. You respond with actionable, clear tactical advice."
-        }
-    };
+            var response = await _client.GetAsync($"https://api.openai.com/v1/threads/{threadId}/messages");
+            var responseContent = await response.Content.ReadAsStringAsync();
 
-            // Add the rest of the history
-            messages.AddRange(history.Messages.Select(m => new { role = m.Role.ToString().ToLower(), content = m.Content }));
+            using var doc = JsonDocument.Parse(responseContent);
+            var root = doc.RootElement;
 
-            var request = new
-            {
-                model = _model,
-                messages = messages
-            };
+            // Navigate to the latest assistant message content
+            var messages = root.GetProperty("data");
+            var latestMessage = messages.EnumerateArray().FirstOrDefault();
 
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/chat/completions")
-            {
-                Content = JsonContent.Create(request)
-            };
-            httpRequest.Headers.Add("Authorization", $"Bearer {_apiKey}");
+            var textContent = latestMessage
+                .GetProperty("content")[0]
+                .GetProperty("text")
+                .GetProperty("value")
+                .GetString();
 
-            var response = await _httpClient.SendAsync(httpRequest);
-            response.EnsureSuccessStatusCode();
-
-            var result = await response.Content.ReadFromJsonAsync<OpenAIResponse>();
-            return result?.Choices?.FirstOrDefault()?.Message?.Content?.Trim();
+            return textContent ?? "[No assistant response found]";
         }
 
 
-        private class OpenAIResponse
+        private async Task AddMessageToThreadAsync(string threadId, string messageContent)
         {
-            public List<Choice> Choices { get; set; }
-
-            public class Choice
-            {
-                public ChatMessageDto Message { get; set; }
-            }
-
-            public class ChatMessageDto
-            {
-                public string Role { get; set; }
-                public string Content { get; set; }
-            }
+            var messageRequest = new MessageRequest { content = messageContent };
+            var json = JsonSerializer.Serialize(messageRequest);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            await _client.PostAsync($"https://api.openai.com/v1/threads/{threadId}/messages", content);
         }
 
+        private async Task RunThreadAsync(string threadId)
+        {
+            var runRequest = new RunRequest
+            {
+                assistant_id = _openAIConfig.AssistantId,
+                instructions = _openAIConfig.Prompt
+            };
+            var json = JsonSerializer.Serialize(runRequest);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            await _client.PostAsync($"https://api.openai.com/v1/threads/{threadId}/runs", content);
+        }
 
+        private async Task<string> GetThreadMessagesAsync(string threadId)
+        {
+            var response = await _client.GetAsync($"https://api.openai.com/v1/threads/{threadId}/messages");
+            return await response.Content.ReadAsStringAsync();
+        }
     }
+
 }

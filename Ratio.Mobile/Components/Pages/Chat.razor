@@ -1,7 +1,11 @@
 ﻿@page "/chat"
-@using Microsoft.Extensions.Configuration
 @using Ratio.Mobile.Services
 @using Ratio.Mobile.Models.Chat
+@using Microsoft.Extensions.Configuration
+@using System.Text.Json
+@using Ratio.Mobile.Models
+
+
 @inject IConfiguration Configuration
 @inject IJSRuntime JS
 
@@ -56,7 +60,8 @@
 
     private ChatHistory chatHistory = new();
     private string userInput;
-    private IChatService chatService;
+    private OpenAIChatService chatService;
+    // private IChatService chatService;
 
     private List<string> suggestions = new()
 {
@@ -72,24 +77,34 @@
         await SendMessage();
     }
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
-        // var apiKey = Configuration["OpenAI:ApiKey"];
-        // chatService = new OpenAIChatService(apiKey);
+        OpenAIConfig configData = await LoadOpenAIConfigAsync();
 
-        // var chatService = new OpenAIChatService(apiKey);
-        chatService = new OllamaChatService("llama3.1:8b");
+        chatService = new OpenAIChatService(configData);
 
     }
+
+    public static async Task<OpenAIConfig> LoadOpenAIConfigAsync()
+    {
+        using var stream = await FileSystem.OpenAppPackageFileAsync("appsettings.json");
+        using var reader = new StreamReader(stream);
+        var json = await reader.ReadToEndAsync();
+
+        return JsonSerializer.Deserialize<OpenAIConfig>(json)
+               ?? throw new InvalidOperationException("Invalid or missing appsettings.json");
+    }
+
 
     private async Task SendMessage()
     {
         if (string.IsNullOrWhiteSpace(userInput)) return;
 
         chatHistory.AddUserMessage(userInput);
-        // var response = await chatService.SendMessageAsync(chatHistory);
-        string fakeResponse = "This is a fake response for testing purposes.";
-        chatHistory.AddAssistantMessage(fakeResponse);
+        var response = await chatService.SendMessageAsync(chatHistory);
+        chatHistory.AddAssistantMessage(response);
+
+
         userInput = string.Empty;
 
         // Ensure the UI has fully rendered before scrolling

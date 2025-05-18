@@ -90,6 +90,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Remove="appsettings.json" />
+    </ItemGroup>
+
+    <ItemGroup>
       <None Include="wwwroot\icons\icons8-catalog-100.png" />
       <None Include="wwwroot\icons\icons8-chat-100.png" />
       <None Include="wwwroot\icons\icons8-cog-100.png" />
@@ -108,6 +112,12 @@
     <ItemGroup>
       <ProjectReference Include="..\Ratio.Application\Ratio.Application.csproj" />
       <ProjectReference Include="..\Ratio.Infrastructure\Ratio.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiAsset Update="Resources\Raw\appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </MauiAsset>
     </ItemGroup>
 
 </Project>
