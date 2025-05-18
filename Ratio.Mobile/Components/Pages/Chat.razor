@@ -1,0 +1,106 @@
+﻿@page "/chat"
+@using Microsoft.Extensions.Configuration
+@using Ratio.Mobile.Services
+@using Ratio.Mobile.Models.Chat
+@inject IConfiguration Configuration
+@inject IJSRuntime JS
+
+
+
+<div class="container mt-4" style="height:90%;">
+    <!-- Page Header -->
+    <h3 class="mb-4">Chat</h3>
+    
+    <!-- Suggestions -->
+    <div class="p-2">
+        <div class="d-flex flex-wrap gap-2">
+            @foreach (var suggestion in suggestions)
+            {
+                <button class="btn btn-outline-secondary btn-sm" @onclick="() => OnSuggestionClicked(suggestion)">
+                    @suggestion
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Messages - Grows to Fill -->
+    <div class="flex-grow-1 overflow-auto p-2" style="height:75%">
+        @foreach (var message in chatHistory.Messages)
+        {
+            <div class="@($"alert {(message.Role == Enums.ChatRole.User ? "alert-dark" : "alert-light")} mb-2")">
+                @message.Content
+            </div>
+        }
+        <div @ref="bottomMarker"></div>
+    </div>
+
+
+    <!-- Input -->
+    <div class="p-2 border-top">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" @bind="userInput"
+                   @bind:event="oninput"
+                   placeholder="Type your message..." />
+            <button class="btn btn-primary" type="button" @onclick="SendMessage">
+                <i class="bi bi-send"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+
+
+@code {
+    private ElementReference bottomMarker;
+
+    private ChatHistory chatHistory = new();
+    private string userInput;
+    private IChatService chatService;
+
+    private List<string> suggestions = new()
+{
+    "What are the best Kill Teams?",
+    "Explain Lethal 5+",
+    "How does Conceal work?",
+    "Show me some tactics"
+};
+
+    private async Task OnSuggestionClicked(string suggestion)
+    {
+        userInput = suggestion;
+        await SendMessage();
+    }
+
+    protected override void OnInitialized()
+    {
+        // var apiKey = Configuration["OpenAI:ApiKey"];
+        // chatService = new OpenAIChatService(apiKey);
+
+        // var chatService = new OpenAIChatService(apiKey);
+        chatService = new OllamaChatService("llama3.1:8b");
+
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(userInput)) return;
+
+        chatHistory.AddUserMessage(userInput);
+        // var response = await chatService.SendMessageAsync(chatHistory);
+        string fakeResponse = "This is a fake response for testing purposes.";
+        chatHistory.AddAssistantMessage(fakeResponse);
+        userInput = string.Empty;
+
+        // Ensure the UI has fully rendered before scrolling
+        await InvokeAsync(StateHasChanged);
+        await ScrollToBottomAsync();
+    }
+
+
+    private async Task ScrollToBottomAsync()
+    {
+        await JS.InvokeVoidAsync("blazorScrollIntoView", bottomMarker);
+    }
+
+}

@@ -1,0 +1,379 @@
+﻿@page "/simulation-result/{actionType}"
+
+@using Ratio.Mobile.Services
+
+@using Ratio.Application.Services
+@using Ratio.Application.Services.Abstraction
+@using Ratio.Application.Enums
+@using Ratio.Application.DTO
+
+@inject NavigationManager NavigationManager
+@inject SimulationStateService SimulationState
+@inject IKillTeamCombatService KillTeamCombatService
+@inject IJSRuntime JS
+
+<div class="container mt-4">
+    <!-- Header -->
+    <h2 class="text-center mb-4">Simulation Results</h2>
+
+    @if (isSimulating || simulationResult is null)
+    {
+        <div class="text-center mb-4">@_progressLine</div>
+        <div class="d-flex flex-column justify-content-start align-items-start"
+        style="height: calc(100vh - 150px); padding: 1rem; overflow-y: auto; font-family: monospace; font-size: 0.85rem;">
+
+            @foreach (var log in _logMessages)
+            {
+                <div>> @log</div>
+            }
+
+            <div @ref="bottomMarker"></div>
+        </div>
+
+    }
+    else
+    {
+        <h3 class="text-center mb-4">@simulationResult.ActionType.ToString()</h3>
+        <!-- Operative Comparison -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-5 text-center border rounded p-3">
+                <img src="@Attacker.ImageUrl" class="img-fluid rounded mb-2" style="width: 60px;" />
+                <h5>@Attacker.Name</h5>
+                <div class="border rounded p-1 mt-2">
+                    <i class="bi bi-crosshair"></i> <!-- Replace with real icon if available -->
+                </div>
+            </div>
+
+            <div class="col-1 d-flex align-items-center justify-content-center">
+                <h4>VS</h4>
+            </div>
+
+            <div class="col-5 text-center border rounded p-3">
+                <img src="@Defender.ImageUrl" class="img-fluid rounded mb-2" style="width: 60px;" />
+                <h5>@Defender.Name</h5>
+                <div class="border rounded p-1 mt-2">
+                    <i class="bi bi-shield"></i> <!-- Replace with real icon if available -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Winner Summary -->
+        <div class="text-center mb-4">
+            <h5>Winner: <strong>@winner.Name</strong></h5>
+            <p>Victory in @winner.Wins of @SimulationCount runs</p>
+        </div>
+
+        <!-- Common Statistics -->
+        <div class="row g-3 mb-4">
+            <div class="col-6">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6 class="card-title">Average Damage/Round</h6>
+                        <p>Attacker: @simulationResult.AttackerAverageDamageDealt<br />Defender: @simulationResult.DefenderAverageDamageDealt</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6 class="card-title">Average Remaining Wounds</h6>
+                        <p>Attacker: @simulationResult.AttackerAverageRemainingWounds<br />Defender: @simulationResult.DefenderAverageRemainingWounds</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fight Specific -->
+        @if (simulationResult.ActionType == ActionType.Fight)
+        {
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="card text-start">
+                        <div class="card-body">
+                            <h6 class="card-title">Attacker Stats</h6>
+                            <p>
+                                Crit Hits: <strong>@simulationResult.AttackerCritHitCount</strong><br />
+                                Normal Hits: <strong>@simulationResult.AttackerNormalHitCount</strong><br />
+                                Average Crit Chance: <strong>@($"{simulationResult.AttackerAverageCritHitChance:P0}")</strong><br />
+                                Average Hit Chance: <strong>@($"{simulationResult.AttackerAverageNormalHitChance:P0}")</strong><br />
+                                Average Damage Roll: <strong>@simulationResult.AttackerAverageDamageRoll</strong><br />
+                                Average Defense Roll: <strong>@simulationResult.AttackerAverageDefenseRoll</strong><br />
+                                Criticals Parried: <strong>@simulationResult.AttackerCriticalHitsParried</strong><br />
+                                Normals Parried: <strong>@simulationResult.AttackerNormalHitsParried</strong><br />
+                                Survival Rate: <strong>@($"{simulationResult.AttackerSurvivalRate:P0}")</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card text-start">
+                        <div class="card-body">
+                            <h6 class="card-title">Defender Stats</h6>
+                            <p>
+                                Crit Hits: <strong>@simulationResult.DefenderCritHitCount</strong><br />
+                                Normal Hits: <strong>@simulationResult.DefenderNormalHitCount</strong><br />
+                                Average Crit Chance: <strong>@($"{simulationResult.DefenderAverageCritHitChance:P0}")</strong><br />
+                                Average Hit Chance: <strong>@($"{simulationResult.DefenderAverageNormalHitChance:P0}")</strong><br />
+                                Average Damage Roll: <strong>@simulationResult.DefenderAverageDamageRoll</strong><br />
+                                Average Defense Roll: <strong>@simulationResult.DefenderAverageDefenseRoll</strong><br />
+                                Criticals Parried: <strong>@simulationResult.DefenderCriticalHitsParried</strong><br />
+                                Normals Parried: <strong>@simulationResult.DefenderNormalHitsParried</strong><br />
+                                Survival Rate: <strong>@($"{simulationResult.DefenderSurvivalRate:P0}")</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+        <!-- Shooting Specific -->
+        @if (simulationResult.ActionType == ActionType.Shoot)
+        {
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="card text-start">
+                        <div class="card-body">
+                            <h6 class="card-title">Attacker Stats</h6>
+                            <p>
+                                Crit Hits: <strong>@simulationResult.AttackerCritHitCount</strong><br />
+                                Normal Hits: <strong>@simulationResult.AttackerNormalHitCount</strong><br />
+                                Average Crit Chance: <strong>@($"{simulationResult.AttackerAverageCritHitChance:P0}")</strong><br />
+                                Average Hit Chance: <strong>@($"{simulationResult.AttackerAverageNormalHitChance:P0}")</strong><br />
+                                Average Damage Roll: <strong>@simulationResult.AttackerAverageDamageRoll</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card text-start">
+                        <div class="card-body">
+                            <h6 class="card-title">Defender Defense</h6>
+                            <p>
+                                Average Defense Roll: <strong>@simulationResult.DefenderAverageDefenseRoll</strong><br />
+                                Survival Rate: <strong>@($"{simulationResult.DefenderSurvivalRate:P0}")</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Effect Usage Counts -->
+        @* @if (simulationResult.EffectUsageCounts != null && simulationResult.EffectUsageCounts.Any())
+        {
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6 class="card-title">Effect Usage Counts</h6>
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var effect in simulationResult.EffectUsageCounts)
+                                {
+                                    <li>Effect: @effect.Key - Usages: @effect.Value</li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        </div> *@
+
+        <!-- Action Buttons -->
+        <div class="d-grid gap-2 mb-2" style="padding-bottom:50px;">
+            <button class="btn btn-dark btn-lg" @onclick="RunSimulationAsync">Run Again</button>
+            <button class="btn btn-outline-dark btn-lg" @onclick="NavigateToSimulation">Change Operatives</button>
+        </div>
+    }
+</div>
+
+
+@code
+{
+
+    [Parameter]
+    public string actionType { get; set; }
+    private OperativeToSim? Attacker { get; set; }
+    private OperativeToSim? Defender { get; set; }
+
+    private int SimulationCount { get; set; } = 1000;
+
+    private bool _runSimulationAfterRender;
+    private bool isSimulating = false;
+
+    private SimulationStatisticsDto? simulationResult { get; set; }
+    private Winner? winner { get; set; }
+
+    private ElementReference bottomMarker;
+    private List<string> _logMessages = new();
+    private string _progressLine = "[ ---- 0 / 0 initializing... ]";
+
+    private async Task ScrollToBottomAsync()
+    {
+        await JS.InvokeVoidAsync("blazorScrollIntoView", bottomMarker);
+    }
+
+    private void UpdateProgress(int current, int total, string message)
+    {
+        var percent = total > 0 ? (int)((double)current / total * 100) : 0;
+        var bar = new string('=', percent / 10) + new string('-', 10 - (percent / 10));
+        _progressLine = $"[ {bar} {current} / {total} {message} ]";
+        StateHasChanged();
+    }
+
+
+    private void NavigateToSimulation()
+    {
+        // Navigate back to the simulation page
+        NavigationManager.NavigateTo("/simulation");
+    }
+
+
+    protected override void OnInitialized()
+    {
+        // Retrieve the selected attacker and defender from the simulation state
+        Attacker = SimulationState.Attacker;
+        Defender = SimulationState.Defender;
+
+        SimulationCount = Preferences.Get("SimulationCount", 1000);
+
+        // Defer the heavy work
+        _runSimulationAfterRender = true;
+    }
+
+    private void OnProgressChanged()
+    {
+        UpdateProgress(SimulationState.ProgressCurrent, SimulationState.ProgressTotal, SimulationState.ProgressMessage);
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_runSimulationAfterRender)
+        {
+            _runSimulationAfterRender = false;
+
+            isSimulating = true;
+            StateHasChanged();
+
+            await RunSimulationAsync();
+
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task RunSimulationAsync()
+    {
+        isSimulating = true;
+        StateHasChanged(); // Refresh UI after processing
+        try
+        {
+            _ = AnimateFakeLogLoopAsync();
+            Subscribe();
+            var enumActionType = Enum.TryParse(actionType, out ActionType actionTypeEnum) ? actionTypeEnum : ActionType.Fight;
+
+            simulationResult = await SimulateAsync(Attacker, Defender, enumActionType, SimulationCount);
+            // Process result
+            winner = CalculateWinner();
+        }
+        finally
+        {
+            isSimulating = false;
+            Dispose();
+        }
+    }
+
+    private async Task<SimulationStatisticsDto> SimulateAsync(OperativeToSim attacker, OperativeToSim defender, ActionType actionType, int runs)
+    {
+        // Simulate the combat and return the result
+        return await KillTeamCombatService.SimulateAsync(attacker, defender, actionType, runs, SimulationState);
+    }
+
+
+    private Winner CalculateWinner()
+    {
+
+        var attackerWins = simulationResult.AttackerWins;
+        var defenderWins = simulationResult.DefenderWins;
+        var draws = simulationResult.Draws;
+
+        var totalRuns = SimulationCount;
+        var attackerWinRate = (double)attackerWins / totalRuns * 100;
+        var defenderWinRate = (double)defenderWins / totalRuns * 100;
+        var drawRate = (double)draws / totalRuns * 100;
+        var winner = attackerWins > defenderWins ? "Attacker" : defenderWins > attackerWins ? "Defender" : "Draw";
+        var winnerName = winner == "Attacker" ? Attacker.Name : winner == "Defender" ? Defender.Name : "No one";
+
+        return new Winner
+            {
+                Name = winnerName,
+                Wins = attackerWins > defenderWins ? attackerWins : defenderWins
+            };
+    }
+
+    private class Winner
+    {
+        public string Name { get; set; }
+        public int Wins { get; set; }
+    }
+
+
+    private readonly List<string> _fakeFeed = new()
+    {
+        "Initializing servo-skull data uplink...",
+        "Retrieving Kill Team roster from Holy Terra archives...",
+        "Engaging auspex scan: no xenos detected.",
+        "Compiling Monte Carlo simulation... please wait...",
+        "Checking purity seals... OK.",
+        "Loading Boltgun.exe",
+        "Parsing ploys: 'Terminal Decree' activated.",
+        "Deploying Exaction Squad. Preparing shock mauls...",
+        "ERROR: Grox infestation detected in subroutine 42.",
+        "Re-rolling failed hit dice... success!",
+        "Applying Lethal 5+ modifiers...",
+        "Activating Stratagem: 'Wrath of the Emperor'",
+        "Consulting Codex Astartes... denied, use common sense.",
+        "Slapping machine spirit awake...",
+        "Analyzing statistical blessing from the Omnissiah...",
+        "Rolling for initiative... it's a draw.",
+        "WARNING: Warp instability at 3.7 sigma threshold.",
+        "Rendering victory banner in Comic Sans...",
+        "Applying Tactical Doctrine... incomplete data.",
+        "Consulting machine spirit: 'Are you sure you want to proceed?'"
+    };
+
+    private async Task AnimateFakeLogLoopAsync()
+    {
+        int step = 0;
+        int totalSteps = _fakeFeed.Count;
+
+        while (isSimulating)
+        {
+            foreach (var message in _fakeFeed)
+            {
+                if (!isSimulating) break;
+
+                step++;
+                _logMessages.Add(message);
+                await ScrollToBottomAsync();
+                StateHasChanged();
+                await Task.Delay(150);
+            }
+        }
+    }
+
+    public void Subscribe()
+    {
+        SimulationState.ProgressChanged += OnProgressChanged;
+    }
+
+    public void Dispose()
+    {
+        SimulationState.ProgressChanged -= OnProgressChanged;
+    }
+}
+

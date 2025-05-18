@@ -1,0 +1,88 @@
+﻿@inject NavigationManager Navigation
+
+<div class="bottom-nav d-flex justify-content-around border-top bg-light p-2">
+    @foreach (var item in NavItems)
+    {
+        <button class="@GetButtonClass(item) btn btn-link text-dark d-flex flex-column align-items-center"
+                @onclick="() => NavigateTo(item.Route)">
+            <img src="@item.Icon" alt="@item.Label" style="width: 24px; height: 24px;" />
+            <small>@item.Label</small>
+        </button>
+    }
+</div>
+
+
+@code {
+    private class NavItem
+    {
+        public string Label { get; set; } = "";
+        public string Route { get; set; } = "";
+        public string Icon { get; set; } = "";
+    }
+
+    private List<NavItem> NavItems = new()
+    {
+        new NavItem { Label = "Simulate", Route = "/simulation", Icon = "icons/icons8-icosahedron-100.png" },
+        new NavItem { Label = "Library", Route = "/library", Icon = "icons/icons8-catalog-100.png" },
+        new NavItem { Label = "Chat", Route = "/chat", Icon = "icons/icons8-chat-100.png" },
+        new NavItem { Label = "Settings", Route = "/settings", Icon = "icons/icons8-cog-100.png" }
+    };
+
+    private string currentRoute = "";
+
+    protected override void OnInitialized()
+    {
+        UpdateCurrentRoute();
+        Navigation.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        UpdateCurrentRoute();
+        StateHasChanged();
+    }
+
+    private void UpdateCurrentRoute()
+    {
+        var uri = Navigation.ToBaseRelativePath(Navigation.Uri).ToLower();
+
+        if (uri.StartsWith("simulation") ||
+            uri.StartsWith("select-operative") ||
+            uri.StartsWith("configure-operative"))
+        {
+            currentRoute = "Simulate";
+        }
+        else if (uri.StartsWith("library"))
+        {
+            currentRoute = "Library";
+        }
+        else if (uri.StartsWith("chat"))
+        {
+            currentRoute = "Chat";
+        }
+        else if (uri.StartsWith("settings"))
+        {
+            currentRoute = "Settings";
+        }
+        else
+        {
+            currentRoute = "";
+        }
+    }
+
+
+    private string GetButtonClass(NavItem item)
+    {
+        return item.Label == currentRoute ? "active" : "";
+    }
+
+    private void NavigateTo(string route)
+    {
+        Navigation.NavigateTo(route);
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= HandleLocationChanged;
+    }
+}

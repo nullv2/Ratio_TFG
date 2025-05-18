@@ -1,0 +1,50 @@
+﻿@page "/settings"
+
+@using Microsoft.Maui.Storage
+
+<div class="container mt-4">
+
+    <!-- Page Header -->
+    <h3 class="mb-4">Setting</h3>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Monte Carlo Simulations</h5>
+            <label for="simulationCountInput" class="form-label">Number of Monte Carlo Simulations per Run</label>
+
+            <input type="range" class="form-range" id="simulationCountRange" min="100" max="10000" step="100"
+                   @bind="SimulationCount" @bind:event="oninput" />
+
+            <input type="number" id="simulationCountInput" class="form-control mt-2" min="100" max="10000" step="100"
+                   @bind="SimulationCount" @bind:event="oninput" />
+
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body text-center">
+            <h5 class="card-title">Kill Team Simulator</h5>
+            <p class="text-muted">v0.1.0</p>
+            <p>Developed by Ghenadie 😎</p>
+            <a href="">Github repo</a>
+        </div>
+    </div>
+
+    <div class="d-grid">
+        <button class="btn btn-dark btn-lg" @onclick="SaveSettings">Save Settings</button>
+    </div>
+</div>
+
+@code {
+    private int SimulationCount { get; set; }
+
+    protected override void OnInitialized()
+    {
+        SimulationCount = Preferences.Get("SimulationCount", 1000);
+    }
+
+    private void SaveSettings()
+    {
+        Preferences.Set("SimulationCount", SimulationCount);
+    }
+}

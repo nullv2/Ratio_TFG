@@ -1,0 +1,13 @@
+﻿@inherits LayoutComponentBase
+
+<div class="d-flex flex-column vh-100">
+    <!-- Main Content: Fills available space -->
+    <main class="flex-grow-1 overflow-auto p-3">
+        @Body
+    </main>
+
+    <!-- Bottom Navigation -->
+    <footer class="border-top bg-dark text-white">
+        <NavMenu />
+    </footer>
+</div>

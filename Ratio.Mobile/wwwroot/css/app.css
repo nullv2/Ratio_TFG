@@ -1,0 +1,132 @@
+﻿:root {
+    --bottom-nav-height: 60px; /* Adjust if needed */
+}
+
+/* Base Reset and Defaults */
+html, body {
+    font-family: monospace;
+    /* background-color: #111;
+    color: #ddd;*/
+    position: relative;
+    height: 100%;
+}
+
+.page {
+    height:100%;
+}
+
+/* Blazor Error UI */
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+.blazor-error-boundary {
+    background: url(data:image/svg+xml;base64,...omitted...) no-repeat 1rem/1.8rem, #b32121;
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: white;
+}
+
+    .blazor-error-boundary::after {
+        content: "An error has occurred.";
+    }
+
+/* Safe Area for iOS */
+.status-bar-safe-area {
+    display: none;
+}
+
+@supports (-webkit-touch-callout: none) {
+    .status-bar-safe-area {
+        display: flex;
+        position: sticky;
+        top: 0;
+        height: env(safe-area-inset-top);
+        background-color: #f7f7f7;
+        width: 100%;
+        z-index: 1;
+    }
+
+    .flex-column, .navbar-brand {
+        padding-left: env(safe-area-inset-left);
+    }
+}
+
+/* Page Sections */
+/* Page Sections */
+.simulation-setup, .operative-selection, .operative-config {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+
+/* Page Header */
+.page-header {
+    padding: 16px;
+    background-color: #000;
+    color: #ddd;
+    border-bottom: 4px solid #444;
+}
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 18px;
+        font-family: monospace;
+        text-transform: uppercase;
+    }
+
+
+.selection-summary {
+    background-color: #222;
+    border: 2px solid #444;
+    padding: 8px;
+    color: #ddd;
+    font-family: monospace;
+    margin-bottom: 8px;
+}
+
+    .selection-summary.empty {
+        color: #555;
+    }
+
+
+
+/* Imperium - Blue */
+.bg-imperium {
+    background-color: #0d6efd !important; /* Bootstrap Primary Blue */
+    color: #fff !important;
+}
+
+/* Chaos - Purple */
+.bg-chaos {
+    background-color: #6f42c1 !important; /* Deep Purple */
+    color: #fff !important;
+}
+
+/* Xenos - Dark Gray */
+.bg-xenos {
+    background-color: #343a40 !important; /* Bootstrap Dark */
+    color: #fff !important;
+}
+
+/* Aeldari - Green */
+.bg-aeldari {
+    background-color: #198754 !important; /* Bootstrap Success Green */
+    color: #fff !important;
+}

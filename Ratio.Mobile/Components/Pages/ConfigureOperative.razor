@@ -1,0 +1,285 @@
+﻿@page "/configure-operative/{operativeId:int}/{operativeType}"
+
+@using Ratio.Mobile.Utilities
+@using Ratio.Mobile.Enums
+
+@using Ratio.Application.DTO
+@using Ratio.Application.Repositories
+@using Ratio.Application.Services
+
+
+@using SQLite
+@using SQLitePCL
+
+
+@inject IKillTeamRepository KillTeamRepository
+@inject NavigationManager NavigationManager
+@inject SimulationStateService SimulationState
+
+
+<div class="container mt-4">
+    <h3>@Operative.Name</h3>
+
+    <hr />
+
+    <div class="d-flex justify-content-between bg-light rounded p-2 mb-3">
+        <div><strong>M</strong><br>@Operative.Movement</div>
+        <div><strong>APL</strong><br>@Operative.ActionPointLimit</div>
+        <div><strong>SV</strong><br>@Operative.Save</div>
+        <div><strong>W</strong><br>@Operative.Wounds</div>
+    </div>
+
+    <!-- Ranged Weapon -->
+    <div class="mb-3">
+        <label for="rangedWeaponSelect" class="form-label">Ranged Weapon</label>
+        <select id="rangedWeaponSelect" class="form-select" @onchange="OnRangedWeaponChanged">
+            @foreach (var weapon in RangedWeapons)
+            {
+                <option value="@weapon.Id">@weapon.Name</option>
+            }
+        </select>
+
+        @if (SelectedRangedWeapon != null)
+        {
+            <table class="table table-sm table-bordered mt-2">
+                <thead class="table-light">
+                    <tr>
+                        <th>Attacks</th>
+                        <th>Hit +</th>
+                        <th>Damage</th>
+                        <th>Traits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@SelectedRangedWeapon.Attacks</td>
+                        <td>@SelectedRangedWeapon.HitThreshold</td>
+                        <td>@SelectedRangedWeapon.NormalDamage / @SelectedRangedWeapon.CriticalDamage</td>
+                        <td>@string.Join(", ", SelectedRangedWeapon.Traits)</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+
+
+    <!-- Melee Weapon -->
+    <div class="mb-3">
+        <label for="meleeWeaponSelect" class="form-label mt-3">Melee Weapon</label>
+        <select id="meleeWeaponSelect" class="form-select" @onchange="OnMeleeWeaponChanged">
+            @foreach (var weapon in MeleeWeapons)
+            {
+                <option value="@weapon.Id">@weapon.Name</option>
+            }
+        </select>
+
+        @if (SelectedMeleeWeapon != null)
+        {
+            <table class="table table-sm table-bordered mt-2">
+                <thead class="table-light">
+                    <tr>
+                        <th>Attacks</th>
+                        <th>Hit +</th>
+                        <th>Damage</th>
+                        <th>Traits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@SelectedMeleeWeapon.Attacks</td>
+                        <td>@SelectedMeleeWeapon.HitThreshold</td>
+                        <td>@SelectedMeleeWeapon.NormalDamage / @SelectedMeleeWeapon.CriticalDamage</td>
+                        <td>@string.Join(", ", SelectedMeleeWeapon.Traits)</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+
+
+    <div class="mb-3">
+        @* 
+        <label for="equipmentSelect" class="form-label mt-3">Equipment</label>
+        <select id="equipmentSelect" class="form-select" @bind="SelectedEquipment">
+            @foreach (var equipment in Equipments)
+            {
+                <option value="@equipment.Id">@equipment.Name</option>
+            }
+        </select> *@
+
+        <label for="tacticalPloySelect" class="form-label mt-3">Firefight Ploys</label>
+        <select id="tacticalPloySelect" class="form-select" @bind="SelectedFirefightPloy">
+            @foreach (var ploy in FirefightPloys)
+            {
+                <option value="@ploy.Id">@ploy.Name</option>
+            }
+        </select>
+
+        <label for="strategicPloySelect" class="form-label mt-3">Strategic Ploys</label>
+        <select id="strategicPloySelect" class="form-select" @bind="SelectedStrategicPloy">
+            @foreach (var ploy in StrategicPloys)
+            {
+                <option value="@ploy.Id">@ploy.Name</option>
+            }
+        </select>
+    </div>
+
+    <button class="btn btn-dark w-100" @onclick="AcceptSelection">Accept Selection</button>
+</div>
+
+
+@code {
+    [Parameter] public int operativeId { get; set; }
+    [Parameter] public string operativeType { get; set; }
+
+    private OperativeDto Operative { get; set; } = new OperativeDto();
+    private IEnumerable<WeaponDto> RangedWeapons { get; set; } = new List<WeaponDto>();
+    private IEnumerable<WeaponDto> MeleeWeapons { get; set; } = new List<WeaponDto>();
+    private IEnumerable<PloyDto> StrategicPloys { get; set; } = new List<PloyDto>();
+    private IEnumerable<PloyDto> FirefightPloys { get; set; } = new List<PloyDto>();
+
+    private int SelectedRangedWeaponId { get; set; }
+    private int SelectedMeleeWeaponId { get; set; }
+
+    private WeaponDto SelectedRangedWeapon { get; set; }
+    private WeaponDto SelectedMeleeWeapon { get; set; }
+
+    private int SelectedFirefightPloy { get; set; }
+    private int SelectedStrategicPloy { get; set; }
+
+
+    protected override async void OnInitialized()
+    {
+        Operative = await KillTeamRepository.GetOperativeByIdAsync(operativeId);
+
+        var weapons = await KillTeamRepository.GetWeaponsByOperativeIdAsync(Operative.Id);
+        RangedWeapons = weapons.Where(w => w.Type.ToLower() == WeaponType.Ranged.ToString().ToLower()).ToList();
+        MeleeWeapons = weapons.Where(w => w.Type.ToLower() == WeaponType.Melee.ToString().ToLower()).ToList();
+
+        // Get weapon traits
+        foreach (var weapon in RangedWeapons)
+        {
+            var traits = await KillTeamRepository.GetWeaponTraitsByWeaponIdAsync(weapon.Id);
+            weapon.Traits = traits.Select(t => $"{t.TraitType} {t.TraitValue}").ToList();
+        }
+
+        foreach (var weapon in MeleeWeapons)
+        {
+            var traits = await KillTeamRepository.GetWeaponTraitsByWeaponIdAsync(weapon.Id);
+            weapon.Traits = traits.Select(t => $"{t.TraitType} {t.TraitValue}").ToList();
+        }
+
+
+        var ploys = await KillTeamRepository.GetPloysByKillTeamIdAsync(Operative.KillTeamId);
+        StrategicPloys = ploys.Where(p => p.Type.ToLower() == PloyType.Strategic.ToString().ToLower());
+        FirefightPloys = ploys.Where(p => p.Type.ToLower() == PloyType.Firefight.ToString().ToLower());
+
+        // Set default selections
+        UpdateRangedWeapon(RangedWeapons.FirstOrDefault()?.Id);
+        UpdateMeleeWeapon(MeleeWeapons.FirstOrDefault()?.Id);
+
+        StateHasChanged(); // Force refresh if needed 
+    }
+
+    private void OnRangedWeaponChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var id))
+        {
+            UpdateRangedWeapon(id);
+        }
+    }
+
+    private void OnMeleeWeaponChanged(ChangeEventArgs e)
+    {
+
+        if (int.TryParse(e.Value?.ToString(), out var id))
+        {
+            UpdateMeleeWeapon(id);
+        }
+    }
+
+    private void UpdateRangedWeapon(int? weaponId)
+    {
+
+        if (weaponId == null)
+            return;
+
+        SelectedRangedWeaponId = weaponId.Value;
+        SelectedRangedWeapon = RangedWeapons.FirstOrDefault(w => w.Id == weaponId);
+    }
+    private void UpdateMeleeWeapon(int? weaponId)
+    {
+        if (weaponId == null)
+            return;
+
+        SelectedMeleeWeaponId = weaponId.Value;
+        SelectedMeleeWeapon = MeleeWeapons.FirstOrDefault(w => w.Id == weaponId);
+    }
+
+    private async void AcceptSelection()
+    {
+
+        var killteam = await KillTeamRepository.GetKillTeamByIdAsync(Operative.KillTeamId);
+        var faction = await KillTeamRepository.GetFactionByIdAsync(killteam.FactionId);
+
+        SelectedMeleeWeapon = MeleeWeapons.FirstOrDefault(w => w.Id == SelectedMeleeWeaponId);
+        SelectedRangedWeapon = RangedWeapons.FirstOrDefault(w => w.Id == SelectedRangedWeaponId);
+
+        if (SelectedMeleeWeapon == null)
+        {
+            SelectedMeleeWeapon = new WeaponDto
+                {
+                    Id = 0,
+                    Name = string.Empty,
+                    Attacks = 0,
+                    HitThreshold = 0,
+                    NormalDamage = 0,
+                    CriticalDamage = 0,
+                    Traits = new List<string>()
+                };
+        }
+
+        if (SelectedRangedWeapon == null)
+        {
+            SelectedRangedWeapon = new WeaponDto
+                {
+                    Id = 0,
+                    Name = string.Empty,
+                    Attacks = 0,
+                    HitThreshold = 0,
+                    NormalDamage = 0,
+                    CriticalDamage = 0,
+                    Traits = new List<string>()
+                };
+        }
+
+        // Save the selected weapon and ploys to the operative
+        OperativeToSim operativeToSim = new OperativeToSim
+            {
+                Id = Operative.Id,
+                SelectedRangedWeaponId = SelectedRangedWeapon.Id,
+                SelectedMeleeWeaponId = SelectedMeleeWeapon.Id,
+                SelectedFirefightPloyId = SelectedFirefightPloy,
+                SelectedStrategicPloyId = SelectedStrategicPloy,
+                Faction = faction.Name,
+                KillTeam = killteam.Name,
+                KillTeamId = killteam.Id,
+                Name = Operative.Name,
+                RangedWeaponName = SelectedRangedWeapon.Name,
+                MeleeWeaponName = SelectedMeleeWeapon.Name,
+                Ploys = "",
+                ImageUrl = Operative.Image
+            };
+
+        // Set the selected operative in the simulation state
+        if (operativeType.ToLower() == OperativeType.Attacker.ToString().ToLower())
+            SimulationState.SetAttacker(operativeToSim);
+        else if (operativeType.ToLower() == OperativeType.Defender.ToString().ToLower())
+            SimulationState.SetDefender(operativeToSim);
+        else
+            throw new InvalidOperationException("Invalid operative type specified.");
+
+        // Navigate back to the simulation page
+        NavigationManager.NavigateTo("/simulation");
+    }
+}

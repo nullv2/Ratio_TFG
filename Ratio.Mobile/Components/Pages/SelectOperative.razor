@@ -1,0 +1,184 @@
+﻿@page "/select-operative/{operativeType}"
+
+@using Ratio.Mobile.Components
+@using Ratio.Mobile.Models
+@using Ratio.Mobile.Utilities
+
+@using Ratio.Application.Repositories
+@using Ratio.Application.DTO
+
+@inject IKillTeamRepository KillTeamRepository
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+
+<div class="container mt-4">
+    <!-- Page Header -->
+    <h3 class="mb-4">Select @operativeType</h3>
+
+    <!-- Search Filters -->
+    <div class="mb-4">
+        <input type="text"
+               class="form-control mb-2"
+               @bind-value="SearchQuery"
+               @bind-value:event="oninput"
+               placeholder="Search by name" />
+
+        <select id="killTeamSelect"
+                class="form-select"
+                multiple
+                @onchange="ReadSelectedKillTeams">
+            @foreach (var killteam in AllKillTeams.ToList())
+            {
+                <option value="@killteam.Id">@killteam.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-2">
+        Showing @filteredOperatives.Count().ToString() operative(s)
+    </div>
+    
+
+    <div class="row row-cols-2 g-3 align-items-stretch" style="padding-bottom:80px;">
+        @foreach (var operative in filteredOperatives)
+        {
+            <div class="col d-flex">
+                <div class="card d-flex flex-column w-100">
+                    <img src="@operative.ImageUrl"
+                         class="card-img-top p-2"
+                         alt="Operative Icon"
+                         style="height: 120px; object-fit: contain;" />
+
+                    <div class="card-body text-start flex-grow-1">
+                        <p>
+                            <span class="badge @GetFactionBadgeClass(operative.Faction)">@operative.Faction</span>
+                        </p>
+                        <h6 class="card-title">@operative.Name</h6>
+                        <p class="card-text text-muted small">
+                            @operative.KillTeam<br />
+                        </p>
+                    </div>
+
+                    <div class="p-2 mt-auto">
+                        <button class="btn btn-dark btn-sm w-100" @onclick="@(() => ConfigureOperative(int.Parse(operative.Id)))">
+                            Configure Operative
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+
+</div>
+
+
+@code {
+    [Parameter]
+    public string operativeType { get; set; }
+
+    private IEnumerable<KillTeamDto> AllKillTeams = new List<KillTeamDto>();
+
+    private IEnumerable<OperativeDto> AllOperatives = new List<OperativeDto>();
+    private IEnumerable<OperativeViewModel> filteredOperatives = new List<OperativeViewModel>();
+
+    private List<string> SelectedKillTeamIds = new();
+
+    private async Task ReadSelectedKillTeams(ChangeEventArgs e)
+    {
+        SelectedKillTeamIds = await JS.InvokeAsync<List<string>>("getSelectedOptions", "killTeamSelect");
+        SelectedKillTeams = AllKillTeams.Where(kt => SelectedKillTeamIds.Contains(kt.Id.ToString()));
+        ApplyFilters();
+    }
+
+    private readonly Dictionary<string, string> factionColors = new()
+    {
+        { "Imperium", "bg-imperium" },
+        { "Chaos", "bg-chaos" },
+        { "Xenos", "bg-xenos" },
+        { "Aeldari", "bg-aeldari" }
+    };
+
+    private string GetFactionBadgeClass(string faction)
+    {
+        return factionColors.TryGetValue(faction, out var cssClass) ? cssClass : "bg-dark";
+    }
+
+    private string searchQuery = "";
+    private string SearchQuery
+    {
+        get => searchQuery;
+        set
+        {
+            searchQuery = value;
+            ApplyFilters();
+        }
+    }
+
+    private IEnumerable<KillTeamDto> selectedKillTeams = new List<KillTeamDto>();
+    private IEnumerable<KillTeamDto> SelectedKillTeams
+    {
+        get => selectedKillTeams;
+        set
+        {
+            selectedKillTeams = value;
+            ApplyFilters();
+        }
+    }
+
+    private async void ApplyFilters()
+    {
+        var filtered = AllOperatives.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            filtered = filtered.Where(o => o.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (SelectedKillTeams.Any())
+        {
+            var selectedTeamIds = SelectedKillTeams.Select(kt => kt.Id);
+            filtered = filtered.Where(o => selectedTeamIds.Contains(o.KillTeamId));
+        }
+
+        filteredOperatives = await BuildOperativeViewModels(filtered);
+        StateHasChanged(); // Force refresh if needed
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllKillTeams = await KillTeamRepository.GetAllKillTeamsAsync();
+        AllOperatives = await KillTeamRepository.GetAllOperativesAsync(); // Assuming this exists
+        ApplyFilters();
+    }
+
+    private void ConfigureOperative(int operativeId)
+    {
+        NavigationManager.NavigateTo($"/configure-operative/{operativeId}/{operativeType}");
+
+    }
+    
+    private async Task<List<OperativeViewModel>> BuildOperativeViewModels(IEnumerable<OperativeDto> operatives)
+    {
+        var result = new List<OperativeViewModel>();
+
+        foreach (var operative in operatives)
+        {
+            var killTeam = await KillTeamRepository.GetKillTeamByIdAsync(operative.KillTeamId);
+            var faction = await KillTeamRepository.GetFactionByIdAsync(killTeam.FactionId);
+
+            result.Add(new OperativeViewModel
+                {
+                    Id = operative.Id.ToString(),
+                    Name = operative.Name,
+                    KillTeam = killTeam?.Name ?? "Unknown",
+                    Faction = faction?.Name ?? "Unknown",
+                    ImageUrl = operative.Image
+                });
+        }
+
+        return result;
+    }
+}

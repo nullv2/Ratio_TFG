@@ -1,0 +1,229 @@
+﻿@page "/"
+@page "/simulation"
+@using Ratio.Mobile.Services
+@using Ratio.Mobile.Enums
+
+@using Ratio.Application.DTO
+@using Ratio.Application.Repositories
+@using Ratio.Application.Enums
+@using Ratio.Application.Services
+@using Ratio.Application.Services.Abstraction
+
+@inject IKillTeamRepository KillTeamRepository
+@inject NavigationManager NavigationManager
+@inject SimulationStateService SimulationState
+@inject IKillTeamCombatService KillTeamCombatService
+@inject DatabaseInitializer DbInitializer
+
+<div class="container mt-4">
+
+    <!-- Page Header -->
+    <h3 class="mb-4">Simulation</h3>
+
+    <!-- Attacker Panel -->
+    <div class="text-center mb-4">
+        <h4>Attacker</h4>
+        @if (Attacker == null)
+        {
+            <div class="border rounded p-3 bg-light mx-auto d-flex align-items-center justify-content-center" style="max-width: 500px; height: 120px;">
+                <button class="btn btn-outline-dark" @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Attacker.ToString())">+ Select Attacker</button>
+            </div>
+        }
+        else
+        {
+            <div class="border rounded p-3 bg-light mx-auto d-flex align-items-center clickable"
+            style="max-width: 500px; cursor: pointer;"
+            @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Attacker.ToString())">
+
+                <img src="@Attacker.ImageUrl"
+                alt="Attacker"
+                class="img-fluid rounded me-3"
+                style="width: 80px; height: 80px; object-fit: cover;" />
+
+                <div class="text-start">
+                    <div><strong>Faction:</strong> @Attacker.Faction</div>
+                    <div><strong>Kill Team:</strong> @Attacker.KillTeam</div>
+                    <div><strong>Ranged:</strong> @Attacker.RangedWeaponName</div>
+                    <div><strong>Melee:</strong> @Attacker.MeleeWeaponName</div>
+                    <div><strong>Ploys:</strong> @Attacker.Ploys</div>
+                </div>
+            </div>
+
+        }
+    </div>
+
+    <!-- VS Separator -->
+    <div class="text-center my-4">
+        <h4 class="text-muted">VS</h4>
+    </div>
+
+    <!-- Defender Panel -->
+    <div class="text-center mb-5">
+        <h4>Defender</h4>
+        @if (Defender == null)
+        {
+            <div class="border rounded p-3 bg-light mx-auto d-flex align-items-center justify-content-center" style="max-width: 500px; height: 120px;">
+                <button class="btn btn-outline-dark" @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Defender.ToString())">+ Select Defender</button>
+            </div>
+        }
+        else
+        {
+            <div class="border rounded p-3 bg-light mx-auto d-flex align-items-center clickable"
+            style="max-width: 500px; cursor: pointer;"
+                 @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Defender.ToString())">
+
+                <img src="@Defender.ImageUrl"
+                alt="Defender"
+                class="img-fluid rounded me-3"
+                style="width: 80px; height: 80px; object-fit: cover;" />
+
+                <div class="text-start">
+                    <div><strong>Faction:</strong> @Defender.Faction</div>
+                    <div><strong>Kill Team:</strong> @Defender.KillTeam</div>
+                    <div><strong>Ranged:</strong> @Defender.RangedWeaponName</div>
+                    <div><strong>Melee:</strong> @Defender.MeleeWeaponName</div>
+                    <div><strong>Ploys:</strong> @Defender.Ploys</div>
+                </div>
+            </div>
+
+        }
+    </div>
+
+    <!-- Action Toggle -->
+    <div class="d-flex justify-content-center mb-4">
+        <div class="btn-group" role="group">
+            <button type="button"
+            class="btn @(IsFighting ? "btn-dark" : "btn-outline-dark")"
+            @onclick="SetFighting">
+                Fighting
+            </button>
+            <button type="button"
+            class="btn @(IsShooting ? "btn-dark" : "btn-outline-dark")"
+            @onclick="SetShooting">
+                Shooting
+            </button>
+        </div>
+    </div>
+
+
+    <br /><br />
+
+    <!-- Start Button -->
+    @if (!string.IsNullOrEmpty(validationMessage))
+    {
+        <div class="alert alert-warning text-center" role="alert">
+            @validationMessage
+        </div>
+    }
+
+    <div class="text-center mb-5">
+        <button class="btn btn-dark btn-lg w-100 py-3" disabled="@(Attacker == null || Defender == null)" @onclick="() => StartSimulationAsync()">Start Simulation</button>
+    </div>
+
+</div>
+
+
+@code {
+    private OperativeToSim? Attacker { get; set; }
+    private OperativeToSim? Defender { get; set; }
+    private bool IsFighting { get; set; } = true;
+    private bool IsShooting { get; set; } = false;
+
+    private void NavigateToOperative(string operativeType)
+    {
+        NavigationManager.NavigateTo($"/select-operative/{operativeType}");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await DBSetupAsync();
+        LoadForm();
+    }
+
+
+    private void LoadForm()
+    {
+        if (SimulationState.Attacker != null)
+        {
+            Attacker = SimulationState.Attacker;
+        }
+        if (SimulationState.Defender != null)
+        {
+            Defender = SimulationState.Defender;
+        }
+        if (SimulationState.ActionType == ActionType.Fight)
+        {
+            SetFighting();
+        }
+        else if (SimulationState.ActionType == ActionType.Shoot)
+        {
+            SetShooting();
+        }
+    }
+
+
+
+    private void SetFighting()
+    {
+        IsFighting = true;
+        IsShooting = false;
+
+        SimulationState.SetActionType(ActionType.Fight);
+    }
+
+    private void SetShooting()
+    {
+        IsFighting = false;
+        IsShooting = true;
+        SimulationState.SetActionType(ActionType.Shoot);
+    }
+
+
+
+    private async Task DBSetupAsync()
+    {
+        DbInitializer.InitDB();
+    }
+
+    private bool isSimulating = false;
+    private async Task StartSimulationAsync()
+    {
+        if (!ValidateSimulation())
+        {
+            Console.WriteLine(validationMessage);
+            return;
+        }
+
+        ActionType actionType = IsFighting ? ActionType.Fight : ActionType.Shoot;
+        NavigationManager.NavigateTo($"/simulation-result/{actionType}");
+    }
+
+    private string? validationMessage;
+
+    private bool ValidateSimulation()
+    {
+        if (IsShooting && (Attacker == null || Attacker.SelectedRangedWeaponId == 0))
+        {
+            validationMessage = "Attacker has no ranged weapon assigned. Cannot perform shooting simulation.";
+            return false;
+        }
+
+        if (IsFighting && (Attacker == null || Attacker.SelectedMeleeWeaponId == 0))
+        {
+            validationMessage = "Attacker has no melee weapon assigned. Cannot perform fighting simulation.";
+            return false;
+        }
+
+        if (IsFighting && (Defender == null || Defender.SelectedMeleeWeaponId == 0))
+        {
+            validationMessage = "Defender has no melee weapon assigned. Cannot perform fighting simulation.";
+            return false;
+        }
+
+        validationMessage = null;
+        return true;
+    }
+
+
+}

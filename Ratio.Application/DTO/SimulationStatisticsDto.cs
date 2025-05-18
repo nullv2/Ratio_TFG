@@ -1,0 +1,45 @@
+﻿using Ratio.Application.Enums;
+
+namespace Ratio.Application.DTO
+{
+    public record SimulationStatisticsDto(
+        int AttackerId,
+        string AttackerName,
+        int DefenderId,
+        string DefenderName,
+        ActionType ActionType,
+        int SimulationCount,
+        string AttackerWeaponName,
+        string DefenderWeaponName,
+        List<int> AttackerRolls,
+        List<int> DefenderRolls,
+        int AttackerAverageDamageDealt,
+        int DefenderAverageDamageDealt,
+        int AttackerAverageRemainingWounds,
+        int DefenderAverageRemainingWounds,
+        int AttackerIncapacitatedCount,
+        int DefenderIncapacitatedCount,
+        int AttackerCritHitCount,
+        int AttackerNormalHitCount,
+        int DefenderCritHitCount,
+        int DefenderNormalHitCount,
+        decimal AttackerAverageCritHitChance,
+        decimal AttackerAverageNormalHitChance,
+        decimal DefenderAverageCritHitChance,
+        decimal DefenderAverageNormalHitChance,
+        int AttackerAverageDefenseRoll,
+        int DefenderAverageDefenseRoll,
+        int AttackerAverageDamageRoll,
+        int DefenderAverageDamageRoll,
+        decimal AttackerSurvivalRate,
+        decimal DefenderSurvivalRate,
+        int AttackerCriticalHitsParried,
+        int DefenderCriticalHitsParried,
+        int AttackerNormalHitsParried,
+        int DefenderNormalHitsParried,
+        int AttackerWins,
+        int DefenderWins,
+        int Draws,
+        Dictionary<string, int> EffectUsageCounts
+    );
+}

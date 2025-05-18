@@ -1,0 +1,82 @@
+/*.simulation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    padding: 1rem;
+    height: 100%;
+    background: #111;
+    color: #ddd;
+}
+
+.combat-selection {
+    display: flex;
+    padding-top:100px;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0;
+    gap: 2rem;
+    width: 100%;
+}
+
+.combat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px dashed #555;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: #000;
+}
+
+.card-placeholder {
+    width: 120px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #555;
+    border-radius: 0.5rem;
+    color: #777;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    background: #111;
+}
+
+.vs-text {
+    font-size: 1.5rem;
+    color: #555;
+}
+
+.action-toggle {
+    display: flex;
+    margin: 1rem 0;
+}
+
+.toggle-button {
+    padding: 0.5rem 1.5rem;
+    border: 2px solid #ddd;
+    background: #111;
+    color: #ddd;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+    .toggle-button.selected {
+        background: #ddd;
+        color: #000;
+        border: 2px solid #fff;
+        font-weight: bold;
+    }
+
+.start-button {
+    padding: 0.75rem 2rem;
+    border: 2px solid #ddd;
+    border-radius: 0.5rem;
+    background: #000;
+    color: #ddd;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+*/

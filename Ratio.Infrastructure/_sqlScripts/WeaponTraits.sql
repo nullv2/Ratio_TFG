@@ -1,0 +1,6 @@
+﻿CREATE TABLE WeaponTraits (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    WeaponId INT NOT NULL FOREIGN KEY REFERENCES Weapons(Id),
+    TraitType NVARCHAR(50) NOT NULL,
+    TraitValue INT NULL
+);

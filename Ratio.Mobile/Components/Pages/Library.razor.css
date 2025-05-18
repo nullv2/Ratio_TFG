@@ -1,0 +1,104 @@
+
+
+/* Styled input */
+/* Inputs */
+/*input[type="text"], .killteam-select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #444;
+    border-radius: 0;
+    background-color: #222;
+    color: #ddd;
+    font-family: monospace;
+}*/
+
+/* Filter Section */
+/*.search-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background-color: #111;
+    border: 2px solid #444;
+}*/
+
+
+    /* Search Input */
+    /*.search-filters input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #111;
+        font-size: 14px;
+    }
+
+    .search-filters select {
+        background-color: #111;
+    }*/
+
+/* Operative Grid */
+/*.operative-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 12px;
+}*/
+
+/* Operative Cards */
+/*.operative-card {
+    background-color: #222;
+    border: 2px solid #444;
+    border-radius: 0;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #ddd;
+    font-family: monospace;
+}
+
+    .operative-card:hover {
+        background-color: #000;
+        color: #ddd;
+    }*/
+
+/* Operative Icon */
+/*.operative-icon img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+    filter: brightness(0) invert(1);
+}*/
+
+/* Operative Text */
+/*.operative-name {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.operative-team {
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+}*/
+
+/* View Details Button */
+/*.view-details-button {
+    margin-top: 8px;
+    padding: 8px;
+    border: 2px solid #444;
+    background-color: #000;
+    color: #ddd;
+    font-family: monospace;
+    text-transform: uppercase;
+    width: 100%;
+    cursor: pointer;
+}
+
+    .view-details-button:hover {
+        background-color: #222;
+    }*/
