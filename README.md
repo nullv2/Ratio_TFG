@@ -40,7 +40,7 @@
    git clone https://github.com/nullv2/Ratio_TFG.git
    cd Ratio_TFG
    ```
-2. Open `Ratio.Mobile` in Android Studio to build and run the Android application.
+2. Open `Ratio.Mobile` in Visual Studio to build and run the MAUI Hybrid application.
 3. Open `RATIO.sln` in Visual Studio to build and run the console application for testing.
 
 ## Usage
