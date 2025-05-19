@@ -41,11 +41,13 @@
                 style="width: 80px; height: 80px; object-fit: cover;" />
 
                 <div class="text-start">
-                    <div><strong>Faction:</strong> @Attacker.Faction</div>
-                    <div><strong>Kill Team:</strong> @Attacker.KillTeam</div>
+                    <p><h5>@Attacker.Name</h5></p>
+                    <p class="card-text text-muted">
+                        <span class="badge @GetFactionBadgeClass(Attacker.Faction)">@Attacker.Faction</span>
+                        <strong> @Attacker.KillTeam</strong>
+                    </p>
                     <div><strong>Ranged:</strong> @Attacker.RangedWeaponName</div>
                     <div><strong>Melee:</strong> @Attacker.MeleeWeaponName</div>
-                    <div><strong>Ploys:</strong> @Attacker.Ploys</div>
                 </div>
             </div>
 
@@ -78,11 +80,13 @@
                 style="width: 80px; height: 80px; object-fit: cover;" />
 
                 <div class="text-start">
-                    <div><strong>Faction:</strong> @Defender.Faction</div>
-                    <div><strong>Kill Team:</strong> @Defender.KillTeam</div>
+                    <p><h5>@Defender.Name</h5></p>
+                    <p class="card-text text-muted">
+                        <span class="badge @GetFactionBadgeClass(Defender.Faction)">@Defender.Faction</span>
+                        <strong> @Defender.KillTeam</strong>
+                    </p>
                     <div><strong>Ranged:</strong> @Defender.RangedWeaponName</div>
                     <div><strong>Melee:</strong> @Defender.MeleeWeaponName</div>
-                    <div><strong>Ploys:</strong> @Defender.Ploys</div>
                 </div>
             </div>
 
@@ -133,6 +137,20 @@
     {
         NavigationManager.NavigateTo($"/select-operative/{operativeType}");
     }
+
+    private readonly Dictionary<string, string> factionColors = new()
+    {
+        { "Imperium", "bg-imperium" },
+        { "Chaos", "bg-chaos" },
+        { "Xenos", "bg-xenos" },
+        { "Aeldari", "bg-aeldari" }
+    };
+
+    private string GetFactionBadgeClass(string faction)
+    {
+        return factionColors.TryGetValue(faction, out var cssClass) ? cssClass : "bg-dark";
+    }
+
 
     protected override async Task OnInitializedAsync()
     {

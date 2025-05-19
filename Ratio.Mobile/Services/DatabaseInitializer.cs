@@ -61,6 +61,14 @@ namespace Ratio.Mobile.Services
             MarkDatabaseInitialized();
         }
 
+        public async void ResetDB()
+        {
+            // Drop all tables and reinitialize the database
+            await _initialInsertsService.ResetDBAsync();
+            Preferences.Set("DbInitialized", false);
+            InitDB();
+        }
+
         /// <summary>
         /// Checks if the database is already initialized.
         /// </summary>

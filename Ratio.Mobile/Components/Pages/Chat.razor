@@ -35,6 +35,13 @@
                 @message.Content
             </div>
         }
+
+        @if (isThinking)
+        {
+            <div class="alert alert-light mb-2">
+                <em>...</em>
+            </div>
+        }
         <div @ref="bottomMarker"></div>
     </div>
 
@@ -60,8 +67,9 @@
 
     private ChatHistory chatHistory = new();
     private string userInput;
-    private OpenAIChatService chatService;
-    // private IChatService chatService;
+    private OpenAIChatService chatService; 
+    private bool isThinking;
+
 
     private List<string> suggestions = new()
 {
@@ -101,13 +109,16 @@
         if (string.IsNullOrWhiteSpace(userInput)) return;
 
         chatHistory.AddUserMessage(userInput);
+        userInput = string.Empty;
+
+        isThinking = true;
+        await InvokeAsync(StateHasChanged);
+
         var response = await chatService.SendMessageAsync(chatHistory);
         chatHistory.AddAssistantMessage(response);
 
-
-        userInput = string.Empty;
-
         // Ensure the UI has fully rendered before scrolling
+        isThinking = false;
         await InvokeAsync(StateHasChanged);
         await ScrollToBottomAsync();
     }

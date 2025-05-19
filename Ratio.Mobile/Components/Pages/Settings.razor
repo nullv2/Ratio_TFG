@@ -1,6 +1,9 @@
 ﻿@page "/settings"
 
 @using Microsoft.Maui.Storage
+@using Ratio.Mobile.Services
+
+@inject DatabaseInitializer DbInitializer
 
 <div class="container mt-4">
 
@@ -30,6 +33,22 @@
         </div>
     </div>
 
+    <div class="card mb-4 shadow-sm d-grid">
+        <div class="card-body">
+            <h5 class="card-title">Danger Zone</h5>
+            <p class="text-danger">Resetting the database will remove all data and reseed it from scratch.</p>
+        </div>
+        <button class="btn btn-danger" @onclick="ResetDatabaseAsync">Reset Database</button>
+
+        @if (!string.IsNullOrEmpty(ResetMessage))
+        {
+            <div class="alert alert-success mt-2">@ResetMessage</div>
+        }
+    </div>
+
+    <hr />
+
+
     <div class="d-grid">
         <button class="btn btn-dark btn-lg" @onclick="SaveSettings">Save Settings</button>
     </div>
@@ -37,6 +56,7 @@
 
 @code {
     private int SimulationCount { get; set; }
+    private string? ResetMessage;
 
     protected override void OnInitialized()
     {
@@ -46,5 +66,11 @@
     private void SaveSettings()
     {
         Preferences.Set("SimulationCount", SimulationCount);
+    }
+
+    private void ResetDatabaseAsync()
+    {
+        DbInitializer.ResetDB();
+        ResetMessage = "Database has been reset successfully.";
     }
 }

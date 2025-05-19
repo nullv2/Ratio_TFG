@@ -94,10 +94,18 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="wwwroot\icons\icons8-catalog-100.png" />
-      <None Include="wwwroot\icons\icons8-chat-100.png" />
-      <None Include="wwwroot\icons\icons8-cog-100.png" />
-      <None Include="wwwroot\icons\icons8-icosahedron-100.png" />
+      <None Include="wwwroot\icons\icons8-catalog-100.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Include="wwwroot\icons\icons8-chat-100.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Include="wwwroot\icons\icons8-cog-100.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Include="wwwroot\icons\icons8-icosahedron-100.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -112,6 +120,27 @@
     <ItemGroup>
       <ProjectReference Include="..\Ratio.Application\Ratio.Application.csproj" />
       <ProjectReference Include="..\Ratio.Infrastructure\Ratio.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="wwwroot\images\breacher.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\images\icons8-alien-100.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\images\icons8-astronaut-100.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\images\nemesisClaw.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\images\vespid.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\images\wrecka.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
