@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace Ratio.Mobile.Services
 {
-    public class OpenAIChatService
+    public class OpenAIChatService : IChatService
     {
         private readonly HttpClient _client;
         private readonly OpenAIConfig _openAIConfig;
@@ -45,9 +45,8 @@ namespace Ratio.Mobile.Services
             if (string.IsNullOrEmpty(_threadId))
                 await InitializeThreadAsync();
 
-            await AddMessageToThreadAsync(_threadId, userMessage);
-            await RunThreadAsync(_threadId);
-            await Task.Delay(5000); // Replace with proper polling if needed
+            await AddMessageToThreadAsync(_threadId, userMessage); 
+            await RunThreadAsync(_threadId); 
 
             // Fetch messages and extract assistant's reply
             var assistantReply = await GetLatestAssistantMessageAsync(_threadId);
@@ -78,22 +77,60 @@ namespace Ratio.Mobile.Services
 
         private async Task AddMessageToThreadAsync(string threadId, string messageContent)
         {
-            var messageRequest = new MessageRequest { content = messageContent };
+            var messageRequest = new MessageRequest { role = "user", content = messageContent };
             var json = JsonSerializer.Serialize(messageRequest);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             await _client.PostAsync($"https://api.openai.com/v1/threads/{threadId}/messages", content);
         }
 
-        private async Task RunThreadAsync(string threadId)
+        private async Task<string> RunThreadAsync(string threadId)
         {
             var runRequest = new RunRequest
             {
                 assistant_id = _openAIConfig.AssistantId,
                 instructions = _openAIConfig.Prompt
             };
+
             var json = JsonSerializer.Serialize(runRequest);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            await _client.PostAsync($"https://api.openai.com/v1/threads/{threadId}/runs", content);
+
+            var response = await _client.PostAsync($"https://api.openai.com/v1/threads/{threadId}/runs", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            using var doc = JsonDocument.Parse(responseContent);
+            var runId = doc.RootElement.GetProperty("id").GetString();
+
+            if (runId is null)
+                throw new InvalidOperationException("Run ID not found in response");
+
+            await PollRunStatusAsync(threadId, runId);
+
+            return runId;
+        }
+
+        private async Task PollRunStatusAsync(string threadId, string runId)
+        {
+            const int maxAttempts = 30;
+            const int delayMs = 1000; // 1 second between polls
+
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                var response = await _client.GetAsync($"https://api.openai.com/v1/threads/{threadId}/runs/{runId}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                using var doc = JsonDocument.Parse(content);
+                var status = doc.RootElement.GetProperty("status").GetString();
+
+                if (status == "completed")
+                    return;
+
+                if (status == "failed" || status == "cancelled" || status == "expired")
+                    throw new InvalidOperationException($"Run {runId} failed with status: {status}");
+
+                await Task.Delay(delayMs);
+            }
+
+            throw new TimeoutException("Polling exceeded maximum attempts without completion.");
         }
 
         private async Task<string> GetThreadMessagesAsync(string threadId)

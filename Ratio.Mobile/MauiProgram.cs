@@ -1,15 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using Ratio.Mobile.Services;
-using Ratio.Application.Repositories;
-using Ratio.Infrastructure.Repositories;
-using SQLite;
 using Ratio.Application.Mappers;
+using Ratio.Application.Repositories;
 using Ratio.Application.Services;
 using Ratio.Application.Services.Abstraction;
+using Ratio.Infrastructure.Repositories;
 using Ratio.Infrastructure.Services;
-using Microsoft.Extensions.Configuration;
-using System.Text.Json;
-using Ratio.Mobile.Models;
+using Ratio.Mobile.Services;
+using SQLite;
 
 namespace Ratio.Mobile
 {
@@ -52,10 +49,12 @@ namespace Ratio.Mobile
 
             builder.Services.AddTransient<InitialInsertsService>();
 
+            builder.Services.AddScoped<ChatStateService>();
+            builder.Services.AddSingleton<AppInitializationService>();
 
             return builder.Build();
         }
-        
+
 
     }
 }

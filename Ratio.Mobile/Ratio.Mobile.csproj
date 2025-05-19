@@ -39,39 +39,48 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+        <PackageProjectUrl>https://github.com/nullv2/Ratio_TFG</PackageProjectUrl>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
       <ApplicationId>com.tfgGhenadie.ratio.mobile</ApplicationId>
-      <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
+      <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
+      <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-ios|AnyCPU'">
       <ApplicationId>com.tfgGhenadie.ratio.mobile</ApplicationId>
+      <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-maccatalyst|AnyCPU'">
       <ApplicationId>com.tfgGhenadie.ratio.mobile</ApplicationId>
+      <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-windows10.0.19041.0|AnyCPU'">
       <ApplicationId>com.tfgGhenadie.ratio.mobile</ApplicationId>
+      <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
       <ApplicationId>com.tfgGhenadie.ratio.mobile</ApplicationId>
+      <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-ios|AnyCPU'">
       <ApplicationId>com.tfgGhenadie.ratio.mobile</ApplicationId>
+      <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-maccatalyst|AnyCPU'">
       <ApplicationId>com.tfgGhenadie.ratio.mobile</ApplicationId>
+      <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-windows10.0.19041.0|AnyCPU'">
       <ApplicationId>com.tfgGhenadie.ratio.mobile</ApplicationId>
+      <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -89,11 +98,12 @@
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Remove="appsettings.json" />
-    </ItemGroup>
+	<ItemGroup>
+		<MauiAsset Include="Resources\Raw\appsettings.json" />
+	</ItemGroup>
 
-    <ItemGroup>
+
+	<ItemGroup>
       <None Include="wwwroot\icons\icons8-catalog-100.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -109,6 +119,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Markdig" Version="0.41.1" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />

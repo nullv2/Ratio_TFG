@@ -29,7 +29,7 @@
             <h5 class="card-title">Kill Team Simulator</h5>
             <p class="text-muted">v0.1.0</p>
             <p>Developed by Ghenadie 😎</p>
-            <a href="">Github repo</a>
+            <a href="https://github.com/nullv2/Ratio_TFG">Github repo 💻</a>
         </div>
     </div>
 
@@ -68,9 +68,9 @@
         Preferences.Set("SimulationCount", SimulationCount);
     }
 
-    private void ResetDatabaseAsync()
+    private async void ResetDatabaseAsync()
     {
-        DbInitializer.ResetDB();
+        await DbInitializer.ResetDBAsync();
         ResetMessage = "Database has been reset successfully.";
     }
 }

@@ -33,41 +33,43 @@ namespace Ratio.Mobile.Services
             "Sql/KillTeams/4_imperialNavyBreachers.sql",
         };
 
-        public async void InitDB()
+        public async Task InitDBAsync()
         {
-
-            // Check if the database is already initialized
             if (IsDatabaseInitialized())
-            {
                 return;
-            }
 
             await _initialInsertsService.ResetDBAsync();
+            await SeedDatabaseAsync();
+        }
 
-            // Execute the seed scripts
+        public async Task ResetDBAsync()
+        {
+            await _initialInsertsService.ResetDBAsync();
+            Preferences.Set("DbInitialized", false);
+
+            // Always re-seed after reset
+            await SeedDatabaseAsync();
+        }
+
+
+        private async Task SeedDatabaseAsync()
+        {
             foreach (var script in _seedScripts)
             {
                 var sqlLines = await MauiAssetLoader.LoadAsLinesAsync(script);
                 await _initialInsertsService.ExecuteSeedScriptAsync(sqlLines);
             }
-            // Execute the kill team seed scripts
+
             foreach (var script in _killTeamSeedScripts)
             {
                 var sqlLines = await MauiAssetLoader.LoadAsLinesAsync(script);
                 await _initialInsertsService.ExecuteSeedScriptAsync(sqlLines);
             }
 
-            // Mark the database as initialized
             MarkDatabaseInitialized();
         }
 
-        public async void ResetDB()
-        {
-            // Drop all tables and reinitialize the database
-            await _initialInsertsService.ResetDBAsync();
-            Preferences.Set("DbInitialized", false);
-            InitDB();
-        }
+
 
         /// <summary>
         /// Checks if the database is already initialized.

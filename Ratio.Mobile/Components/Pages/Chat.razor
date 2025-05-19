@@ -4,47 +4,47 @@
 @using Microsoft.Extensions.Configuration
 @using System.Text.Json
 @using Ratio.Mobile.Models
-
+@using Markdig
 
 @inject IConfiguration Configuration
 @inject IJSRuntime JS
-
+@inject ChatStateService ChatState
 
 
 <div class="container mt-4" style="height:90%;">
     <!-- Page Header -->
     <h3 class="mb-4">Chat</h3>
-    
+
     <!-- Suggestions -->
     <div class="p-2">
         <div class="d-flex flex-wrap gap-2">
             @foreach (var suggestion in suggestions)
             {
-                <button class="btn btn-outline-secondary btn-sm" @onclick="() => OnSuggestionClicked(suggestion)">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="() => OnSuggestionClicked(suggestion)">
                     @suggestion
-                </button>
+                    </button>
             }
         </div>
     </div>
 
     <!-- Messages - Grows to Fill -->
     <div class="flex-grow-1 overflow-auto p-2" style="height:75%">
-        @foreach (var message in chatHistory.Messages)
+        @foreach (var message in ChatState.ChatHistory.Messages)
         {
-            <div class="@($"alert {(message.Role == Enums.ChatRole.User ? "alert-dark" : "alert-light")} mb-2")">
-                @message.Content
-            </div>
+                <div class="@($"alert {(message.Role == Enums.ChatRole.User ? "alert-dark" : "alert-light")} mb-2")">
+                @((MarkupString)Markdig.Markdown.ToHtml(message.Content ?? ""))
+                </div>
         }
 
         @if (isThinking)
         {
-            <div class="alert alert-light mb-2">
-                <em>...</em>
-            </div>
+        <div class="alert alert-light mb-2">
+                <span>&gt;</span><span class="dot dot-1">.</span><span class="dot dot-2">.</span><span class="dot dot-3">.</span>
+        </div>
         }
+
         <div @ref="bottomMarker"></div>
     </div>
-
 
     <!-- Input -->
     <div class="p-2 border-top">
@@ -53,44 +53,33 @@
                    @bind:event="oninput"
                    placeholder="Type your message..." />
             <button class="btn btn-primary" type="button" @onclick="SendMessage">
-                <i class="bi bi-send"></i>
+                >_
             </button>
         </div>
     </div>
-
 </div>
-
-
 
 @code {
     private ElementReference bottomMarker;
-
-    private ChatHistory chatHistory = new();
     private string userInput;
-    private OpenAIChatService chatService; 
+    private IChatService chatService;
     private bool isThinking;
 
-
     private List<string> suggestions = new()
-{
-    "What are the best Kill Teams?",
-    "Explain Lethal 5+",
-    "How does Conceal work?",
-    "Show me some tactics"
-};
-
-    private async Task OnSuggestionClicked(string suggestion)
     {
-        userInput = suggestion;
-        await SendMessage();
-    }
+        "What are the best Kill Teams?",
+        "Explain Lethal 5+",
+        "How does Conceal work?",
+        "Show me some tactics"
+    };
 
     protected override async void OnInitialized()
     {
         OpenAIConfig configData = await LoadOpenAIConfigAsync();
-
         chatService = new OpenAIChatService(configData);
 
+        await InvokeAsync(StateHasChanged);
+        await ScrollToBottomAsync();
     }
 
     public static async Task<OpenAIConfig> LoadOpenAIConfigAsync()
@@ -98,35 +87,38 @@
         using var stream = await FileSystem.OpenAppPackageFileAsync("appsettings.json");
         using var reader = new StreamReader(stream);
         var json = await reader.ReadToEndAsync();
-
-        return JsonSerializer.Deserialize<OpenAIConfig>(json)
-               ?? throw new InvalidOperationException("Invalid or missing appsettings.json");
+        return JsonSerializer.Deserialize<OpenAIConfig>(json) ?? throw new InvalidOperationException("Invalid or missing appsettings.json");
     }
 
+    private async Task OnSuggestionClicked(string suggestion)
+    {
+        userInput = suggestion;
+        await SendMessage();
+    }
 
     private async Task SendMessage()
     {
         if (string.IsNullOrWhiteSpace(userInput)) return;
 
-        chatHistory.AddUserMessage(userInput);
+
+        ChatState.ChatHistory.AddUserMessage(userInput);
         userInput = string.Empty;
 
         isThinking = true;
         await InvokeAsync(StateHasChanged);
+        await ScrollToBottomAsync();
 
-        var response = await chatService.SendMessageAsync(chatHistory);
-        chatHistory.AddAssistantMessage(response);
+        var response = await chatService.SendMessageAsync(ChatState.ChatHistory);
 
-        // Ensure the UI has fully rendered before scrolling
+        ChatState.ChatHistory.AddAssistantMessage(response);
+
         isThinking = false;
         await InvokeAsync(StateHasChanged);
         await ScrollToBottomAsync();
     }
 
-
     private async Task ScrollToBottomAsync()
     {
         await JS.InvokeVoidAsync("blazorScrollIntoView", bottomMarker);
     }
-
 }

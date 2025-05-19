@@ -96,34 +96,44 @@
         }
     </div>
 
-
+@* 
     <div class="mb-3">
-        @* 
         <label for="equipmentSelect" class="form-label mt-3">Equipment</label>
         <select id="equipmentSelect" class="form-select" @bind="SelectedEquipment">
             @foreach (var equipment in Equipments)
             {
                 <option value="@equipment.Id">@equipment.Name</option>
             }
-        </select> *@
-
-        <label for="tacticalPloySelect" class="form-label mt-3">Firefight Ploys</label>
-        <select id="tacticalPloySelect" class="form-select" @bind="SelectedFirefightPloy">
-            @foreach (var ploy in FirefightPloys)
-            {
-                <option value="@ploy.Id">@ploy.Name</option>
-            }
-        </select>
-
-        <label for="strategicPloySelect" class="form-label mt-3">Strategic Ploys</label>
-        <select id="strategicPloySelect" class="form-select" @bind="SelectedStrategicPloy">
-            @foreach (var ploy in StrategicPloys)
-            {
-                <option value="@ploy.Id">@ploy.Name</option>
-            }
         </select>
     </div>
+ *@
+    <!-- Firefight Ploys - In Construction -->
+    <div class="mb-3">
+        <label for="tacticalPloySelect" class="form-label mt-3">Firefight Ploys</label>
+        <div class="alert alert-secondary font-monospace small">
+            [ In construction — coming soon ]
+            @*<select id="tacticalPloySelect" class="form-select" @bind="SelectedFirefightPloy">
+                @foreach (var ploy in FirefightPloys)
+                {
+                    <option value="@ploy.Id">@ploy.Name</option>
+                }
+        </select> *@
+        </div>
+    </div>
 
+    <!-- Strategic Ploys - In Construction -->
+    <div class="mb-3">
+        <label for="strategicPloySelect" class="form-label mt-3">Strategic Ploys</label>
+        <div class="alert alert-secondary font-monospace small">
+            [ In construction — coming soon ]
+            @*<select id="strategicPloySelect" class="form-select" @bind="SelectedStrategicPloy">
+                @foreach (var ploy in StrategicPloys)
+                {
+                    <option value="@ploy.Id">@ploy.Name</option>
+                }
+        </select> *@
+        </div>
+    </div>
     <button class="btn btn-dark w-100" @onclick="AcceptSelection">Accept Selection</button>
 </div>
 

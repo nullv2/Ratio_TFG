@@ -72,7 +72,7 @@
         {
             <div class="border rounded p-3 bg-light mx-auto d-flex align-items-center clickable"
             style="max-width: 500px; cursor: pointer;"
-                 @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Defender.ToString())">
+            @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Defender.ToString())">
 
                 <img src="@Defender.ImageUrl"
                 alt="Defender"
@@ -155,9 +155,21 @@
     protected override async Task OnInitializedAsync()
     {
 
-        await DBSetupAsync();
+        // await DBSetupAsync();
         LoadForm();
     }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        bool dbImageFixed = Preferences.Get("dbImageFixed", false);
+        if (!dbImageFixed)
+        {
+            await DbInitializer.ResetDBAsync();
+            Preferences.Set("dbImageFixed", true);
+        }
+    }
+
 
 
     private void LoadForm()
@@ -201,7 +213,7 @@
 
     private async Task DBSetupAsync()
     {
-        DbInitializer.InitDB();
+        DbInitializer.InitDBAsync();
     }
 
     private bool isSimulating = false;
