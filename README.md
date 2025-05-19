@@ -29,7 +29,6 @@
 
 ### Prerequisites
 
-- [Android Studio](https://developer.android.com/studio) with the latest SDKs.
 - [.NET SDK](https://dotnet.microsoft.com/download) for backend projects.
 - [Visual Studio](https://visualstudio.microsoft.com/) for console application development.
 
