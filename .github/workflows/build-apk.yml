@@ -1,0 +1,41 @@
+name: Build MAUI Android APK (.NET 8)
+
+on:
+  push:
+    branches: [ features/github-actions-test ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: 🧾 Checkout source
+        uses: actions/checkout@v4
+
+      - name: 🛠 Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.204
+
+      - name: 📦 Install MAUI Android workload
+        run: dotnet workload install maui-android --skip-manifest-update
+
+      - name: 🔄 Restore dependencies
+        run: dotnet restore RATIO.sln
+        
+      - name: 🔐 Inject OpenAI secret into appsettings.json
+        run: |
+          $template = Get-Content "Ratio.Mobile/Resources/Raw/appsettings.template.json"
+          $apiKey = "${{ secrets.OPENAI_API_KEY }}"
+          $content = $template -replace "\{OPENAI_API_KEY\}", $apiKey
+          $content | Set-Content "Ratio.Mobile/Resources/Raw/appsettings.json"
+
+      - name: 🏗️ Build APK for Android
+        run: dotnet publish Ratio.Mobile/Ratio.Mobile.csproj -c Release -f net8.0-android -p:AndroidPackageFormat=apk -p:TargetFramework=net8.0-android
+
+      - name: 📤 Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ratio-apk
+          path: Ratio.Mobile/bin/Release/net8.0-android/publish/*.apk
