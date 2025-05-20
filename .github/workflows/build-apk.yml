@@ -1,4 +1,4 @@
-name: Build MAUI Android APK (.NET 9)
+name: Build MAUI Android APK (.NET 8)
 
 on:
   push:
@@ -13,10 +13,10 @@ jobs:
       - name: 🧾 Checkout source
         uses: actions/checkout@v4
 
-      - name: 🛠 Setup .NET 9 SDK
+      - name: 🛠 Setup .NET 8 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.100-preview.2
+          dotnet-version: 8.0.16
 
       - name: 📦 Install MAUI Workload
         run: dotnet workload install maui --skip-manifest-update
@@ -28,11 +28,11 @@ jobs:
         run: |
           dotnet publish Ratio.Mobile/Ratio.Mobile.csproj \
             -c Release \
-            -f net9.0-android \
+            -f net8.0-android \
             -p:AndroidPackageFormat=apk
 
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ratio-apk
-          path: Ratio.Mobile/bin/Release/net9.0-android/publish/*.apk
+          path: Ratio.Mobile/bin/Release/net8.0-android/publish/*.apk
