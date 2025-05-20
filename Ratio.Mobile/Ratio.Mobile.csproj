@@ -98,6 +98,10 @@
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Remove="resources\raw\appsettings.template.json" />
+    </ItemGroup>
+
 	<ItemGroup>
 		<MauiAsset Include="Resources\Raw\appsettings.json" />
 	</ItemGroup>
