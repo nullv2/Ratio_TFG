@@ -1,3 +1,5 @@
+[![Build MAUI Android APK (.NET 8)](https://github.com/nullv2/Ratio_TFG/actions/workflows/build-apk.yml/badge.svg?branch=main)](https://github.com/nullv2/Ratio_TFG/actions/workflows/build-apk.yml)
+
 # Ratio_TFG
 
 **Ratio_TFG** is an Android application designed to assist players of Warhammer 40,000: Kill Team in managing and simulating various aspects of the game. Built with Domain-Driven Design (DDD) principles and adhering to Clean Code practices, the app provides comprehensive tools for simulating combat scenarios, managing kill teams, and planning strategies.
