@@ -1,4 +1,4 @@
-[![Build MAUI Android APK (.NET 8)](https://github.com/nullv2/Ratio_TFG/actions/workflows/build-apk.yml/badge.svg?branch=main)](https://github.com/nullv2/Ratio_TFG/actions/workflows/build-apk.yml)
+[![Build MAUI Android APK (.NET 8)](https://github.com/nullv2/Ratio_TFG/actions/workflows/build-apk.yml/badge.svg)](https://github.com/nullv2/Ratio_TFG/actions/workflows/build-apk.yml)
 
 # Ratio_TFG
 
