@@ -34,7 +34,7 @@ jobs:
       - name: 🔓 Decode and write keystore
         run: |
           $base64 = "${{ secrets.KEYSTORE_FILE_B64 }}"
-          [System.IO.File]::WriteAllBytes("ghenadie-release.keystore", [Convert]::FromBase64String($base64))
+          [System.IO.File]::WriteAllBytes("Ratio.Mobile/ghenadie-release.keystore", [Convert]::FromBase64String($base64))
 
       - name: 🏗️ Build signed APK
         run: >
