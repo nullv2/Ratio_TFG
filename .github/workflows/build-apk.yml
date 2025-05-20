@@ -26,10 +26,7 @@ jobs:
 
       - name: 🏗️ Build APK for Android
         run: |
-          dotnet publish Ratio.Mobile/Ratio.Mobile.csproj \
-            -c Release \
-            -f net8.0-android \
-            -p:AndroidPackageFormat=apk
+          run: dotnet publish Ratio.Mobile/Ratio.Mobile.csproj -c Release -f net8.0-android -p:AndroidPackageFormat=apk
 
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
