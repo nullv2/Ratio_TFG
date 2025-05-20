@@ -25,8 +25,7 @@ jobs:
         run: dotnet restore RATIO.sln
 
       - name: 🏗️ Build APK for Android
-        run: |
-          run: dotnet publish Ratio.Mobile/Ratio.Mobile.csproj -c Release -f net8.0-android -p:AndroidPackageFormat=apk
+        run: dotnet publish Ratio.Mobile/Ratio.Mobile.csproj -c Release -f net8.0-android -p:AndroidPackageFormat=apk -p:TargetFramework=net8.0-android
 
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
