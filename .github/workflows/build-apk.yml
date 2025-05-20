@@ -23,6 +23,13 @@ jobs:
 
       - name: 🔄 Restore dependencies
         run: dotnet restore RATIO.sln
+        
+      - name: 🔐 Inject OpenAI secret into appsettings.json
+        run: |
+          $template = Get-Content "Ratio.Mobile/Resources/Raw/appsettings.template.json"
+          $apiKey = "${{ secrets.OPENAI_API_KEY }}"
+          $content = $template -replace "\{OPENAI_API_KEY\}", $apiKey
+          $content | Set-Content "Ratio.Mobile/Resources/Raw/appsettings.json"
 
       - name: 🏗️ Build APK for Android
         run: dotnet publish Ratio.Mobile/Ratio.Mobile.csproj -c Release -f net8.0-android -p:AndroidPackageFormat=apk -p:TargetFramework=net8.0-android
