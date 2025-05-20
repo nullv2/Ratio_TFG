@@ -16,7 +16,7 @@ jobs:
       - name: 🛠 Setup .NET 8 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.16
+          dotnet-version: 8.0.204
 
       - name: 📦 Install MAUI Workload
         run: dotnet workload install maui --skip-manifest-update
