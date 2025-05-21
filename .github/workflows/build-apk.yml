@@ -2,7 +2,7 @@ name: Build MAUI Android APK (.NET 8)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ feature/sign-apk ]
   workflow_dispatch:
 
 jobs:
@@ -23,19 +23,45 @@ jobs:
 
       - name: 🔄 Restore dependencies
         run: dotnet restore RATIO.sln
-        
-      - name: 🔐 Inject OpenAI secret into appsettings.json
+
+      - name: 🔐 Inject OpenAI secrets into appsettings.json
         run: |
           $template = Get-Content "Ratio.Mobile/Resources/Raw/appsettings.template.json"
           $apiKey = "${{ secrets.OPENAI_API_KEY }}"
+          $assistant = "${{ secrets.OPENAI_API_ASSISTANT }}"
           $content = $template -replace "\{OPENAI_API_KEY\}", $apiKey
+          $content = $content -replace "\{OPENAI_API_ASSISTANT\}", $assistant
           $content | Set-Content "Ratio.Mobile/Resources/Raw/appsettings.json"
 
-      - name: 🏗️ Build APK for Android
-        run: dotnet publish Ratio.Mobile/Ratio.Mobile.csproj -c Release -f net8.0-android -p:AndroidPackageFormat=apk -p:TargetFramework=net8.0-android
+
+      - name: 🔓 Decode and write keystore
+        run: |
+          $base64 = "${{ secrets.KEYSTORE_FILE_B64 }}"
+          [System.IO.File]::WriteAllBytes("Ratio.Mobile/ghenadie-release.keystore", [Convert]::FromBase64String($base64))
+
+      - name: 🏗️ Build signed APK
+        run: >
+          dotnet publish Ratio.Mobile/Ratio.Mobile.csproj
+          -c Release -f net8.0-android
+          -p:AndroidPackageFormat=apk
+          -p:AndroidKeyStore=true
+          -p:AndroidSigningKeyStore=ghenadie-release.keystore
+          -p:AndroidSigningStorePass=${{ secrets.KEYSTORE_PASSWORD }}
+          -p:AndroidSigningKeyAlias=${{ secrets.KEY_ALIAS }}
+          -p:AndroidSigningKeyPass=${{ secrets.KEY_PASSWORD }}
+
+
+      - name: 🧪 List APK files
+        run: Get-ChildItem -Path Ratio.Mobile/bin/Release/net8.0-android/publish
+
+      - name: 📝 Rename APK
+        run: |
+          Rename-Item `
+            "$PWD/Ratio.Mobile/bin/Release/net8.0-android/publish/com.companyname.ratio.mobile-Signed.apk" `
+            "$PWD/Ratio.Mobile/bin/Release/net8.0-android/publish/ghenadieTFG-RATIO.apk"
 
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ratio-apk
-          path: Ratio.Mobile/bin/Release/net8.0-android/publish/*.apk
+          path: Ratio.Mobile/bin/Release/net8.0-android/publish/ghenadieTFG-RATIO.apk
