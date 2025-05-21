@@ -2,7 +2,7 @@ name: Build MAUI Android APK (.NET 8)
 
 on:
   push:
-    branches: [ feature/sign-apk ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
