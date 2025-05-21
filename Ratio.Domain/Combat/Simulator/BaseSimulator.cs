@@ -22,6 +22,7 @@ namespace Ratio.Domain.Combat.Simulator
             {
                 CombatLog.Write($"Applying {effect.GetType().Name} to {operative.Name}");
                 effect.ApplyEffect(context);
+                context.RegisterEffectUsage(effect.GetType().Name);
             }
         }
 
@@ -38,12 +39,14 @@ namespace Ratio.Domain.Combat.Simulator
             {
                 CombatLog.Write($"Applying {effect.GetType().Name} to {attacker.Name}");
                 effect.ApplyEffect(context);
+                context.RegisterEffectUsage(effect.GetType().Name);
             }
 
             foreach (var effect in defender.ActiveEffects.OfType<TEffect>())
             {
                 CombatLog.Write($"Applying {effect.GetType().Name} to {defender.Name}");
                 effect.ApplyEffect(context);
+                context.RegisterEffectUsage(effect.GetType().Name);
             }
         }
 

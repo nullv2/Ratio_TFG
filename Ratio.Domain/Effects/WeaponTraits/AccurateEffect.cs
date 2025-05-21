@@ -20,7 +20,6 @@ namespace Ratio.Domain.Effects.WeaponTraits
         public void ApplyEffect(CombatContext context)
         {
             context.AttackerRetainedNormalHits += Math.Min(_retainedCount, context.AttackerWeapon.Attacks);
-            context.RegisterEffectUsage(GetType().Name);
         }
     }
 }
