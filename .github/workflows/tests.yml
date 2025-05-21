@@ -37,7 +37,7 @@ jobs:
           reportgenerator `
             -reports:**/coverage.cobertura.xml `
             -targetdir:coveragereport `
-            -reporttypes:HtmlInline_AzurePipelines;Cobertura
+            "-reporttypes:HtmlInline_AzurePipelines;Cobertura"
 
       - name: 📤 Upload coverage report
         uses: actions/upload-artifact@v4
