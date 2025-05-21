@@ -24,12 +24,15 @@ jobs:
       - name: 🔄 Restore dependencies
         run: dotnet restore RATIO.sln
 
-      - name: 🔐 Inject OpenAI secret into appsettings.json
+      - name: 🔐 Inject OpenAI secrets into appsettings.json
         run: |
           $template = Get-Content "Ratio.Mobile/Resources/Raw/appsettings.template.json"
           $apiKey = "${{ secrets.OPENAI_API_KEY }}"
+          $assistant = "${{ secrets.OPENAI_API_ASSISTANT }}"
           $content = $template -replace "\{OPENAI_API_KEY\}", $apiKey
+          $content = $content -replace "\{OPENAI_API_ASSISTANT\}", $assistant
           $content | Set-Content "Ratio.Mobile/Resources/Raw/appsettings.json"
+
 
       - name: 🔓 Decode and write keystore
         run: |
