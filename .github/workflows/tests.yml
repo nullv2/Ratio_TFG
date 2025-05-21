@@ -29,7 +29,6 @@ jobs:
       - name: 🧪 Run Domain tests with coverage
         run: |
           dotnet test tests/Ratio.Domain.Tests/Ratio.Domain.Tests.csproj `
-            --no-build `
             --configuration Release `
             --collect:"XPlat Code Coverage"
 
