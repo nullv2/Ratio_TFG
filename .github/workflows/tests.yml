@@ -1,8 +1,8 @@
-name: 🧪 Run Tests
+name: 🧪 Domain Tests + Coverage
 
 on:
   push:
-    branches: [tests-domain]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -17,13 +17,30 @@ jobs:
       - name: 🛠 Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.204
+          dotnet-version: 8.0.x
+
+      - name: 📦 Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
       - name: 🔄 Restore
         run: dotnet restore
 
-      - name: 🧱 Build solution
-        run: dotnet build --no-restore --configuration Release
+      - name: 🧪 Run Domain tests with coverage
+        run: |
+          dotnet test tests/Ratio.Domain.Tests/Ratio.Domain.Tests.csproj `
+            --no-build `
+            --configuration Release `
+            --collect:"XPlat Code Coverage"
 
-      - name: 🧪 Run tests
-        run: dotnet test --no-build --configuration Release --logger "trx"
+      - name: 🧾 Generate coverage report
+        run: |
+          reportgenerator `
+            -reports:**/coverage.cobertura.xml `
+            -targetdir:coveragereport `
+            -reporttypes:HtmlInline_AzurePipelines;Cobertura
+
+      - name: 📤 Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Domain Coverage Report
+          path: coveragereport
