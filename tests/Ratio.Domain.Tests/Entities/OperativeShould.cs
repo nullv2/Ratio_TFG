@@ -210,10 +210,80 @@ namespace Ratio.Domain.Tests.Entities
             clonedOperative.ActiveEffects.Should().BeEmpty();
         }
 
+        [Fact]
+        public void ThrowExceptionWhenAddingNullWeapon()
+        {
+            // Arrange
+            var operative = Operative.Create(1, "Operative Name", 5, 2, 3, 4);
+            Weapon? nullWeapon = null;
+            
+            // Act
+            #pragma warning disable CS8604 // Possible null reference argument.
+            Action act = () => operative.AddWeapon(nullWeapon);
+            #pragma warning restore CS8604 // Possible null reference argument.
+            
+            // Assert
+            act.Should().Throw<ArgumentNullException>()
+                .WithMessage("Weapon cannot be null. (Parameter 'weapon')");
+        }
 
+        [Fact]
+        public void ThrowExceptionWhenSelectingWeaponNotOwnedByOperative()
+        {
+            // Arrange
+            var operative = Operative.Create(1, "Operative Name", 5, 2, 3, 4);
+            var weapon = Weapon.Create(1, "Weapon Name", Enums.WeaponType.Ranged, 3, 3, 3, 4);
+            // Not adding the weapon to the operative
+            
+            // Act
+            Action act = () => operative.SelectWeapon(weapon);
+            
+            // Assert
+            act.Should().Throw<ArgumentException>()
+                .WithMessage("Weapon not owned by this operative.");
+        }
 
+        [Fact]
+        public void ThrowExceptionWhenTakingNegativeDamage()
+        {
+            // Arrange
+            var operative = Operative.Create(1, "Operative Name", 5, 2, 3, 4);
+            int negativeDamage = -1;
+            
+            // Act
+            Action act = () => operative.TakeDamage(negativeDamage);
+            
+            // Assert
+            act.Should().Throw<ArgumentOutOfRangeException>()
+                .WithMessage("Damage cannot be negative. (Parameter 'damage')");
+        }
 
+        [Fact]
+        public void HaveZeroWoundsAfterKaput()
+        {
+            // Arrange
+            var operative = Operative.Create(1, "Operative Name", 5, 2, 3, 4);
+            
+            // Act
+            operative.Kaput();
+            
+            // Assert
+            operative.Wounds.Should().Be(0);
+        }
 
+        [Fact]
+        public void NotGoLowerThanZeroWoundsAfterTakingExcessiveDamage()
+        {
+            // Arrange
+            var operative = Operative.Create(1, "Operative Name", 5, 2, 3, 4);
+            int excessiveDamage = 10; // More than the operative's wounds
+            
+            // Act
+            operative.TakeDamage(excessiveDamage);
+            
+            // Assert
+            operative.Wounds.Should().Be(0);
+        }
 
     }
 }

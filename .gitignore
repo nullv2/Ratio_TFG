@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /Ratio.Mobile/appsettings.json
 /Ratio.Mobile/Resources/Raw/appsettings.json
+/keystore.b64
+/ghenadie-release.keystore
