@@ -4,6 +4,7 @@ on:
   push:
     branches: [tests-domain]
   pull_request:
+    branches: [tests-domain]
   workflow_dispatch:
 
 jobs:
@@ -22,8 +23,8 @@ jobs:
       - name: 📦 Install ReportGenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-      - name: 🔄 Restore
-        run: dotnet restore
+      - name: 🔄 Restore Domain Tests
+        run: dotnet restore tests/Ratio.Domain.Tests/Ratio.Domain.Tests.csproj
 
       - name: 🧪 Run Domain tests with coverage
         run: |
