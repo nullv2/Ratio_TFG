@@ -50,6 +50,10 @@ jobs:
           -p:AndroidSigningKeyAlias=${{ secrets.KEY_ALIAS }}
           -p:AndroidSigningKeyPass=${{ secrets.KEY_PASSWORD }}
 
+
+      - name: 🧪 List APK files
+        run: Get-ChildItem -Path Ratio.Mobile/bin/Release/net8.0-android/publish
+
       - name: 📝 Rename APK
         run: |
           Rename-Item `
