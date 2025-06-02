@@ -1,0 +1,46 @@
+name: 🧪 Domain Tests + Coverage
+
+on:
+  push:
+    branches: [tests-domain]
+  pull_request:
+    branches: [tests-domain]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 📦 Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: 🔄 Restore Domain Tests
+        run: dotnet restore tests/Ratio.Domain.Tests/Ratio.Domain.Tests.csproj
+
+      - name: 🧪 Run Domain tests with coverage
+        run: |
+          dotnet test tests/Ratio.Domain.Tests/Ratio.Domain.Tests.csproj `
+            --configuration Release `
+            --collect:"XPlat Code Coverage"
+
+      - name: 🧾 Generate coverage report
+        run: |
+          reportgenerator `
+            -reports:**/coverage.cobertura.xml `
+            -targetdir:coveragereport `
+            "-reporttypes:HtmlInline_AzurePipelines;Cobertura"
+
+      - name: 📤 Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Domain Coverage Report
+          path: coveragereport

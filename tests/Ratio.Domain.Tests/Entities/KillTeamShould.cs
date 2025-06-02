@@ -48,5 +48,52 @@ namespace Ratio.Domain.Tests.Entities
                 .And.ParamName.Should().Be("id");
         }
 
+        [Fact]
+        public void ThrowExceptionWhenIdIsZero()
+        {
+            // Arrange
+            var zeroId = 0;
+            var name = "Test Kill Team";
+            
+            // Act
+            Action act = () => KillTeam.Create(zeroId, name);
+            
+            // Assert
+            act.Should().Throw<ArgumentOutOfRangeException>()
+                .WithMessage("Id must be greater than zero.*")
+                .And.ParamName.Should().Be("id");
+        }        [Fact]
+        public void ThrowExceptionWhenNameIsNull()
+        {
+            // Arrange
+            var id = 1;
+            string? nullName = null;
+            
+            // Act
+            #pragma warning disable CS8604 // Possible null reference argument.
+            Action act = () => KillTeam.Create(id, nullName);
+            #pragma warning restore CS8604 // Possible null reference argument.
+            
+            // Assert
+            act.Should().Throw<ArgumentException>()
+                .WithMessage("Name cannot be empty.*")
+                .And.ParamName.Should().Be("name");
+        }
+
+        [Fact]
+        public void ThrowExceptionWhenNameIsWhitespace()
+        {
+            // Arrange
+            var id = 1;
+            var whitespace = "   ";
+            
+            // Act
+            Action act = () => KillTeam.Create(id, whitespace);
+            
+            // Assert
+            act.Should().Throw<ArgumentException>()
+                .WithMessage("Name cannot be empty.*")
+                .And.ParamName.Should().Be("name");
+        }
     }
 }
