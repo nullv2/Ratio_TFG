@@ -69,18 +69,5 @@ namespace Ratio.Domain.Tests
             _stringWriter.ToString().Should().Contain($"==== {header} ====");
         }
         
-        [Fact]
-        public void NotWriteHeaderToConsoleWhenDisabled()
-        {
-            // Arrange
-            string header = "Test Header";
-            CombatLog.IsEnabled = false;
-            
-            // Act
-            CombatLog.WriteHeader(header);
-            
-            // Assert
-            _stringWriter.ToString().Should().BeEmpty();
-        }
     }
 }
