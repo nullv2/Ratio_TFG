@@ -2,9 +2,9 @@ name: 🧪 Domain Tests + Coverage
 
 on:
   push:
-    branches: [tests-domain]
+    branches: [main]
   pull_request:
-    branches: [tests-domain]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
