@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ratio.Application\Ratio.Application.csproj" />
-    <ProjectReference Include="..\Ratio.Domain\Ratio.Domain.csproj" />
   </ItemGroup>
 
 </Project>

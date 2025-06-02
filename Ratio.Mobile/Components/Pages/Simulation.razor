@@ -32,8 +32,7 @@
         else
         {
             <div class="border rounded p-3 bg-light mx-auto d-flex align-items-center clickable"
-            style="max-width: 500px; cursor: pointer;"
-            @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Attacker.ToString())">
+            style="max-width: 500px; cursor: pointer;">
 
                 <img src="@Attacker.ImageUrl"
                 alt="Attacker"
@@ -50,6 +49,22 @@
                     <div><strong>Melee:</strong> @Attacker.MeleeWeaponName</div>
                 </div>
             </div>
+            <div class="container px-0 mt-3" style="max-width: 500px;">
+                <div class="row gx-2">
+                    <div class="col">
+                        <button class="btn btn-outline-dark w-100"
+                                @onclick="() => ConfigureOperative(Attacker.Id, Mobile.Enums.OperativeType.Attacker.ToString())">
+                            Edit Operative
+                        </button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-outline-dark w-100"
+                                @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Attacker.ToString())">
+                            + Select Attacker
+                        </button>
+                    </div>
+                </div>
+            </div>
 
         }
     </div>
@@ -57,7 +72,11 @@
     <!-- VS Separator -->
     <div class="text-center my-4">
         <h4 class="text-muted">VS</h4>
+        <button class="btn btn-outline-dark mt-2" @onclick="SwapOperatives">
+            🔄 Swap Attacker & Defender
+        </button>
     </div>
+
 
     <!-- Defender Panel -->
     <div class="text-center mb-5">
@@ -71,8 +90,7 @@
         else
         {
             <div class="border rounded p-3 bg-light mx-auto d-flex align-items-center clickable"
-            style="max-width: 500px; cursor: pointer;"
-            @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Defender.ToString())">
+            style="max-width: 500px; cursor: pointer;">
 
                 <img src="@Defender.ImageUrl"
                 alt="Defender"
@@ -87,6 +105,22 @@
                     </p>
                     <div><strong>Ranged:</strong> @Defender.RangedWeaponName</div>
                     <div><strong>Melee:</strong> @Defender.MeleeWeaponName</div>
+                </div>
+            </div>
+            <div class="container px-0 mt-3" style="max-width: 500px;">
+                <div class="row gx-2">
+                    <div class="col">
+                        <button class="btn btn-outline-dark w-100"
+                                @onclick="() => ConfigureOperative(Defender.Id, Mobile.Enums.OperativeType.Defender.ToString())">
+                            Edit Operative
+                        </button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-outline-dark w-100"
+                                @onclick="() => NavigateToOperative(Mobile.Enums.OperativeType.Defender.ToString())">
+                            + Select Defender
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -108,9 +142,6 @@
             </button>
         </div>
     </div>
-
-
-    <br /><br />
 
     <!-- Start Button -->
     @if (!string.IsNullOrEmpty(validationMessage))
@@ -136,6 +167,12 @@
     private void NavigateToOperative(string operativeType)
     {
         NavigationManager.NavigateTo($"/select-operative/{operativeType}");
+    }
+
+    private void ConfigureOperative(int operativeId, string operativeType)
+    {
+        NavigationManager.NavigateTo($"/configure-operative/{operativeId}/{operativeType}");
+
     }
 
     private readonly Dictionary<string, string> factionColors = new()
@@ -209,7 +246,15 @@
         SimulationState.SetActionType(ActionType.Shoot);
     }
 
+    private void SwapOperatives()
+    {
+        var temp = Attacker;
+        Attacker = Defender;
+        Defender = temp;
 
+        SimulationState.SetAttacker(Attacker);
+        SimulationState.SetDefender(Defender);
+    }
 
     private async Task DBSetupAsync()
     {
