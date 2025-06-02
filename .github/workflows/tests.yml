@@ -30,6 +30,7 @@ jobs:
         run: |
           dotnet test tests/Ratio.Domain.Tests/Ratio.Domain.Tests.csproj `
             --configuration Release `
+            --logger "console;verbosity=detailed" `
             --collect:"XPlat Code Coverage"
 
       - name: 🧾 Generate coverage report
