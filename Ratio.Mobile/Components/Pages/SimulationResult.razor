@@ -40,44 +40,58 @@
                 <img src="@Attacker.ImageUrl" class="img-fluid rounded mb-2" style="width: 60px;" />
                 <h5>@Attacker.Name</h5>
                 <div class="border rounded p-1 mt-2">
-                    <i class="bi bi-crosshair"></i> <!-- Replace with real icon if available -->
+                    <i class="bi bi-crosshair"></i> 
                 </div>
             </div>
 
             <div class="col-1 d-flex align-items-center justify-content-center">
-                <h4>VS</h4>
+                <span class="display-6 fw-bold text-secondary">VS</span>
             </div>
 
             <div class="col-5 text-center border rounded p-3">
                 <img src="@Defender.ImageUrl" class="img-fluid rounded mb-2" style="width: 60px;" />
                 <h5>@Defender.Name</h5>
                 <div class="border rounded p-1 mt-2">
-                    <i class="bi bi-shield"></i> <!-- Replace with real icon if available -->
+                    <i class="bi bi-shield"></i>
                 </div>
             </div>
         </div>
 
         <!-- Winner Summary -->
         <div class="text-center mb-4">
-            <h5>Winner: <strong>@winner.Name</strong></h5>
-            <p>Victory in @winner.Wins of @SimulationCount runs</p>
+            <h5 class="fw-bold" style="color: #ff6a00;">Winner: <strong>@winner.Name</strong></h5>
+            <p class="text-muted">Victory in <strong>@winner.Wins</strong> of <strong>@SimulationCount</strong> runs</p>
         </div>
 
         <!-- Common Statistics -->
         <div class="row g-3 mb-4">
             <div class="col-6">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6 class="card-title">Average Damage/Round</h6>
-                        <p>Attacker: @simulationResult.AttackerAverageDamageDealt<br />Defender: @simulationResult.DefenderAverageDamageDealt</p>
+                <div class="card text-center border-secondary shadow-sm">
+                    <div class="card-body py-2">
+                        <h6 class="card-title text-uppercase text-secondary">Avg Damage/Round</h6>
+                        <div class="d-flex justify-content-between px-3">
+                            <span><strong>Attacker:</strong></span>
+                            <span>@simulationResult.AttackerAverageDamageDealt</span>
+                        </div>
+                        <div class="d-flex justify-content-between px-3">
+                            <span><strong>Defender:</strong></span>
+                            <span>@simulationResult.DefenderAverageDamageDealt</span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-6">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6 class="card-title">Average Remaining Wounds</h6>
-                        <p>Attacker: @simulationResult.AttackerAverageRemainingWounds<br />Defender: @simulationResult.DefenderAverageRemainingWounds</p>
+                <div class="card text-center border-secondary shadow-sm">
+                    <div class="card-body py-2">
+                        <h6 class="card-title text-uppercase text-secondary">Avg Remaining Wounds</h6>
+                        <div class="d-flex justify-content-between px-3">
+                            <span><strong>Attacker:</strong></span>
+                            <span>@simulationResult.AttackerAverageRemainingWounds</span>
+                        </div>
+                        <div class="d-flex justify-content-between px-3">
+                            <span><strong>Defender:</strong></span>
+                            <span>@simulationResult.DefenderAverageRemainingWounds</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,40 +101,81 @@
         @if (simulationResult.ActionType == ActionType.Fight)
         {
             <div class="row g-3 mb-4">
+
                 <div class="col-6">
-                    <div class="card text-start">
-                        <div class="card-body">
-                            <h6 class="card-title">Attacker Stats</h6>
-                            <p>
-                                Crit Hits: <strong>@simulationResult.AttackerCritHitCount</strong><br />
-                                Normal Hits: <strong>@simulationResult.AttackerNormalHitCount</strong><br />
-                                Average Crit Chance: <strong>@($"{simulationResult.AttackerAverageCritHitChance:P0}")</strong><br />
-                                Average Hit Chance: <strong>@($"{simulationResult.AttackerAverageNormalHitChance:P0}")</strong><br />
-                                Average Damage Roll: <strong>@simulationResult.AttackerAverageDamageRoll</strong><br />
-                                Average Defense Roll: <strong>@simulationResult.AttackerAverageDefenseRoll</strong><br />
-                                Criticals Parried: <strong>@simulationResult.AttackerCriticalHitsParried</strong><br />
-                                Normals Parried: <strong>@simulationResult.AttackerNormalHitsParried</strong><br />
-                                Survival Rate: <strong>@($"{simulationResult.AttackerSurvivalRate:P0}")</strong>
-                            </p>
+                    <div class="card border-secondary shadow-sm mb-3">
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-uppercase text-secondary border-bottom pb-1 mb-3" style="letter-spacing: 0.05em;">
+                                Attacker Stats
+                            </h6>
+                            <div class="row row-cols-1 gy-2 small" >
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Crit Hits</strong></span> <span>@simulationResult.AttackerCritHitCount</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Normals</strong></span> <span>@simulationResult.AttackerNormalHitCount</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Avg Crit Chance</strong></span> <span>@($"{simulationResult.AttackerAverageCritHitChance:P0}")</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Avg Hit Chance</strong></span> <span>@($"{simulationResult.AttackerAverageNormalHitChance:P0}")</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Dmg Roll</strong></span> <span>@simulationResult.AttackerAverageDamageRoll</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Def Roll</strong></span> <span>@simulationResult.AttackerAverageDefenseRoll</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Crits Parried</strong></span> <span>@simulationResult.AttackerCriticalHitsParried</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Normals Parried</strong></span> <span>@simulationResult.AttackerNormalHitsParried</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Survival Rate</strong></span> <span>@($"{simulationResult.AttackerSurvivalRate:P0}")</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-6">
-                    <div class="card text-start">
-                        <div class="card-body">
-                            <h6 class="card-title">Defender Stats</h6>
-                            <p>
-                                Crit Hits: <strong>@simulationResult.DefenderCritHitCount</strong><br />
-                                Normal Hits: <strong>@simulationResult.DefenderNormalHitCount</strong><br />
-                                Average Crit Chance: <strong>@($"{simulationResult.DefenderAverageCritHitChance:P0}")</strong><br />
-                                Average Hit Chance: <strong>@($"{simulationResult.DefenderAverageNormalHitChance:P0}")</strong><br />
-                                Average Damage Roll: <strong>@simulationResult.DefenderAverageDamageRoll</strong><br />
-                                Average Defense Roll: <strong>@simulationResult.DefenderAverageDefenseRoll</strong><br />
-                                Criticals Parried: <strong>@simulationResult.DefenderCriticalHitsParried</strong><br />
-                                Normals Parried: <strong>@simulationResult.DefenderNormalHitsParried</strong><br />
-                                Survival Rate: <strong>@($"{simulationResult.DefenderSurvivalRate:P0}")</strong>
-                            </p>
+                    <div class="card border-secondary shadow-sm mb-3">
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-uppercase text-secondary border-bottom pb-1 mb-3" style="letter-spacing: 0.05em;">
+                                Defender Stats
+                            </h6>
+                            <div class="row row-cols-1 gy-2 small" >
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Crit Hits</strong></span> <span>@simulationResult.DefenderCritHitCount</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Normals</strong></span> <span>@simulationResult.DefenderNormalHitCount</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Avg Crit Chance</strong></span> <span>@($"{simulationResult.DefenderAverageCritHitChance:P0}")</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Avg Hit Chance</strong></span> <span>@($"{simulationResult.DefenderAverageNormalHitChance:P0}")</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Dmg Roll</strong></span> <span>@simulationResult.DefenderAverageDamageRoll</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Def Roll</strong></span> <span>@simulationResult.DefenderAverageDefenseRoll</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Crits Parried</strong></span> <span>@simulationResult.DefenderCriticalHitsParried</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Normals Parried</strong></span> <span>@simulationResult.DefenderNormalHitsParried</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Survival Rate</strong></span> <span>@($"{simulationResult.DefenderSurvivalRate:P0}")</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -133,28 +188,45 @@
         {
             <div class="row g-3 mb-4">
                 <div class="col-6">
-                    <div class="card text-start">
-                        <div class="card-body">
-                            <h6 class="card-title">Attacker Stats</h6>
-                            <p>
-                                Crit Hits: <strong>@simulationResult.AttackerCritHitCount</strong><br />
-                                Normal Hits: <strong>@simulationResult.AttackerNormalHitCount</strong><br />
-                                Average Crit Chance: <strong>@($"{simulationResult.AttackerAverageCritHitChance:P0}")</strong><br />
-                                Average Hit Chance: <strong>@($"{simulationResult.AttackerAverageNormalHitChance:P0}")</strong><br />
-                                Average Damage Roll: <strong>@simulationResult.AttackerAverageDamageRoll</strong>
-                            </p>
+                    <div class="card border-secondary shadow-sm mb-3">
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-uppercase text-secondary border-bottom pb-1 mb-3" style="letter-spacing: 0.05em;">
+                                Attacker Stats
+                            </h6>
+                            <div class="row row-cols-1 gy-2 small" >
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Crit Hits</strong></span> <span>@simulationResult.AttackerCritHitCount</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Normals</strong></span> <span>@simulationResult.AttackerNormalHitCount</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Avg Crit Chance</strong></span> <span>@($"{simulationResult.AttackerAverageCritHitChance:P0}")</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Avg Hit Chance</strong></span> <span>@($"{simulationResult.AttackerAverageNormalHitChance:P0}")</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                    <span><strong>Dmg Roll</strong></span> <span>@simulationResult.AttackerAverageDamageRoll</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
                 <div class="col-6">
-                    <div class="card text-start">
-                        <div class="card-body">
-                            <h6 class="card-title">Defender Defense</h6>
-                            <p>
-                                Average Defense Roll: <strong>@simulationResult.DefenderAverageDefenseRoll</strong><br />
-                                Survival Rate: <strong>@($"{simulationResult.DefenderSurvivalRate:P0}")</strong>
-                            </p>
+                    <div class="card border-secondary shadow-sm mb-3">
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-uppercase text-secondary border-bottom pb-1 mb-3" style="letter-spacing: 0.05em;">
+                                Defender Stats
+                            </h6>
+                            <div class="row row-cols-1 gy-2 small" >
+                                <div class="col d-flex justify-content-between">
+                                <span><strong>Average Defense Roll:</strong></span> <span>@simulationResult.DefenderAverageDefenseRoll</span>
+                                </div>
+                                <div class="col d-flex justify-content-between">
+                                <span><strong>Survival Rate:</strong></span> <span>@($"{simulationResult.DefenderSurvivalRate:P0}")</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
